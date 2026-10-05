@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Fitness Plan | Custom Training & Log</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; 
+            color: #f8fafc; 
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card-bg {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .custom-checkbox-list label {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .custom-checkbox-list label:hover {
+            background-color: rgba(51, 65, 85, 0.8);
+        }
+        .custom-checkbox-list input[type="checkbox"] {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+            border-radius: 0.25rem;
+            border: 1px solid #475569;
+            background-color: #0f172a;
+            cursor: pointer;
+        }
+        
+        .chk-indigo input[type="checkbox"]:checked { background-color: #6366f1; border-color: #6366f1; }
+        .chk-sky input[type="checkbox"]:checked { background-color: #0ea5e9; border-color: #0ea5e9; }
+
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .loader {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid #38bdf8;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div id="auth-view" class="w-full max-w-md mx-auto mt-16 px-4 fade-in">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold mb-2 tracking-tight">
+                Dynamic <span class="gradient-text">Fitness Plan</span>
+            </h1>
+            <p class="text-slate-400 text-sm">Sign in to sync your workouts securely.</p>
+        </div>
+
+        <div class="card-bg rounded-2xl p-8 shadow-2xl border-t-4 border-sky-500 relative">
+            <div id="auth-loading" class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-2xl">
+                <div class="loader mb-3"></div>
+                <p class="text-sm font-semibold text-sky-400">Processing...</p>
+            </div>
+
+            <form id="auth-form" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Email Address</label>
+                    <input type="email" id="auth-email" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition shadow-inner">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Password</label>
+                    <input type="password" id="auth-pass" minlength="6" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition shadow-inner">
+                </div>
+
+                <div id="auth-msg-box" class="hidden p-3 rounded-lg text-sm font-semibold border text-center shadow-md">
+                    <!-- Dynamic Messages -->
+                </div>
+
+                <div class="pt-4 flex flex-col space-y-3">
+                    <button type="button" id="btn-login" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-xl shadow-lg transition active:scale-95">
+                        Log In
+                    </button>
+                    <button type="button" id="btn-signup" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-3 rounded-xl shadow-md transition active:scale-95 border border-slate-500">
+                        Create Account
+                    </button>
+                    <!-- Emergency Bypass Button for Local Testing -->
+                    <button type="button" id="btn-bypass" class="w-full mt-2 bg-transparent hover:bg-slate-800 text-amber-500 font-bold py-2 rounded-xl transition border border-amber-600/50">
+                        Bypass Login (Offline Mode)
+                    </button>
+                </div>
+                <p class="text-center text-xs text-slate-500 mt-4">A confirmation email will be sent upon account creation.</p>
+            </form>
+        </div>
+    </div>
+
+    <div id="main-app-view" class="hidden fade-in pb-20">
+        <header class="w-full max-w-5xl text-center mb-6 mt-6 mx-auto px-4 relative">
+            <button id="btn-logout" class="absolute right-4 top-0 text-xs font-bold bg-slate-800 hover:bg-red-900/80 hover:text-red-300 text-slate-400 px-3 py-2 rounded-lg transition border border-slate-700 shadow-sm flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                Log Out
+            </button>
+            <h1 class="text-3xl md:text-5xl font-extrabold mb-2 tracking-tight mt-8 md:mt-0">
+                Dynamic <span class="gradient-text">Fitness Plan</span>
+            </h1>
+        </header>
+
+        <main class="w-full max-w-5xl mx-auto relative px-4">
+            <!-- Tabs Navigation -->
+            <div class="flex flex-wrap justify-center mb-8 border-b border-slate-700/50">
+                <button id="tab-profile" class="tab-btn px-4 sm:px-6 py-3 font-semibold text-sky-400 border-b-2 border-sky-400 transition text-sm sm:text-base">User Profile</button>
+                <button id="tab-plan" class="tab-btn px-4 sm:px-6 py-3 font-semibold text-slate-400 border-b-2 border-transparent hover:text-slate-300 transition text-sm sm:text-base">Plan Setup</button>
+                <button id="tab-dash" class="tab-btn px-4 sm:px-6 py-3 font-semibold text-slate-400 border-b-2 border-transparent hover:text-slate-300 transition hidden text-sm sm:text-base">Dashboard</button>
+                <button id="tab-admin" class="tab-btn px-4 sm:px-6 py-3 font-semibold text-amber-500 border-b-2 border-transparent hover:text-amber-400 transition hidden text-sm sm:text-base flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    Admin Area
+                </button>
+            </div>
+
+            <div id="profile-view" class="card-bg rounded-2xl p-6 md:p-8 shadow-2xl transition-all duration-500 fade-in">
+                <div id="profile-save-indicator" class="hidden mb-4 p-3 bg-emerald-900/50 border border-emerald-500 rounded-lg text-emerald-300 text-sm font-bold flex items-center shadow-lg fade-in">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Profile saved securely!
+                </div>
+                <form id="profile-form" class="space-y-8">
+                    <div>
+                        <h2 class="text-xl font-semibold mb-4 text-sky-400 border-b border-slate-700 pb-2">Your Biometrics</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Age (Yrs)</label>
+                                <input type="number" id="age" min="16" max="100" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Weight (lbs)</label>
+                                <input type="number" id="weight" min="80" max="400" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Resting HR</label>
+                                <input type="number" id="rhr" min="30" max="120" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Fitness Level</label>
+                                <select id="fitness" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white text-sm focus:border-sky-500 appearance-none shadow-inner">
+                                    <option value="" disabled selected>Select...</option>
+                                    <option value="beginner">Beginner</option>
+                                    <option value="intermediate">Intermediate</option>
+                                    <option value="advanced">Advanced</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-semibold mb-2 text-indigo-400 border-b border-slate-700 pb-2">Current Activities</h2>
+                        <p class="text-xs text-slate-400 mb-4">Select what you currently do. This will populate your goal options on the next tab.</p>
+                        <div class="bg-slate-900 border border-slate-600 rounded-lg max-h-60 overflow-y-auto custom-scrollbar p-3 grid grid-cols-1 md:grid-cols-3 gap-2 custom-checkbox-list chk-indigo shadow-inner" id="activities-list-container">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                    <div class="pt-4 flex justify-between items-center border-t border-slate-700/50 mt-8 pt-6 flex-wrap gap-4">
+                        <div class="bg-slate-900 px-3 py-2 rounded border border-slate-700">
+                            <span class="text-xs text-slate-500 block uppercase font-bold tracking-wider mb-1">Your Setup UID (For Admin setup):</span>
+                            <code id="profile-uid" class="text-sky-300 text-sm font-mono select-all">Loading...</code>
+                        </div>
+                        <button type="button" id="save-profile-btn" class="bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg transform transition active:scale-95 w-full md:w-auto">
+                            Save Profile & Next
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="form-container" class="hidden card-bg rounded-2xl p-6 md:p-8 shadow-2xl transition-all duration-500 fade-in">
+                <form id="training-form" class="space-y-8">
+                    <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 flex items-center justify-between shadow-inner">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Profile Sync</h3>
+                            <p id="profile-status-text" class="text-sm text-amber-400 mt-1 font-semibold">Please complete User Profile first.</p>
+                        </div>
+                        <button type="button" id="edit-profile-jump" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-md text-white transition font-semibold shadow-sm">Edit Profile</button>
+                    </div>
+
+                    <div>
+                        <h2 class="text-xl font-semibold mb-4 text-indigo-400 border-b border-slate-700 pb-2">Training Block Goals</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-300 mb-2 uppercase">Primary Fitness Goal</label>
+                                <select id="goal" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 appearance-none disabled:opacity-50 shadow-inner" disabled>
+                                    <option value="" disabled selected>Select activities in Profile first...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-300 mb-2 uppercase">Secondary Goal(s)</label>
+                                <div class="bg-slate-900 border border-slate-600 rounded-lg h-32 overflow-y-auto custom-scrollbar p-2 custom-checkbox-list chk-sky shadow-inner opacity-50 transition-opacity" id="secondary-list-container">
+                                    <p class="text-sm text-slate-500 p-2 italic text-center mt-6">Select activities in Profile first...</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-300 mb-2 uppercase">Plan Start Date</label>
+                                <input type="date" id="start-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:border-indigo-500 shadow-inner [color-scheme:dark]">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-300 mb-2 uppercase">Target End Date</label>
+                                <input type="date" id="end-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:border-indigo-500 shadow-inner [color-scheme:dark]">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex flex-col sm:flex-row justify-between items-center border-t border-slate-700/50 mt-8 pt-6 gap-4">
+                        <span class="text-xs text-slate-500 sm:w-2/3 text-center sm:text-left">By generating this plan, you acknowledge consulting a physician before strenuous activity.</span>
+                        <button type="button" id="generate-btn" class="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg transform transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            Generate Progressive Plan
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="results-container" class="hidden space-y-6 fade-in">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-2 gap-4">
+                    <button id="back-btn" class="text-sky-400 hover:text-sky-300 flex items-center text-sm font-semibold transition self-start sm:self-auto bg-slate-800/50 px-3 py-1.5 rounded-md hover:bg-slate-700/50 border border-slate-600">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        Edit Parameters
+                    </button>
+                    <div class="flex space-x-2 bg-slate-800 p-1.5 rounded-lg w-full sm:w-auto shadow-inner border border-slate-700">
+                        <button id="view-plan-btn" class="flex-1 sm:flex-none px-6 py-2.5 text-sm font-bold rounded-md bg-indigo-600 text-white shadow-md transition">Training Plan</button>
+                        <button id="view-log-btn" class="flex-1 sm:flex-none px-6 py-2.5 text-sm font-bold rounded-md text-slate-400 hover:text-white hover:bg-slate-700/50 transition">Workout Log</button>
+                    </div>
+                </div>
+
+                <!-- Training Plan List -->
+                <div id="plan-view" class="space-y-6 fade-in">
+                    <div class="card-bg rounded-2xl p-6 shadow-xl border-t-4 border-indigo-500">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-4 gap-4">
+                            <div>
+                                <h2 class="text-2xl font-bold text-white mb-1">Custom Progressive Plan</h2>
+                                <p class="text-slate-400 text-sm">Adaptive schedule based on <span id="display-goal" class="font-bold text-indigo-300"></span>.</p>
+                            </div>
+                            <div class="flex flex-wrap items-center space-x-3 bg-slate-900/50 p-2 rounded-lg border border-slate-700/50 shadow-inner">
+                                <span id="plan-duration" class="text-indigo-400 font-bold text-sm py-1 px-3"></span>
+                            </div>
+                        </div>
+                        <div class="space-y-3 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar relative mt-4" id="weekly-schedule">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workout Log Entry -->
+                <div id="log-view" class="hidden space-y-6 fade-in">
+                    <div class="card-bg rounded-2xl p-6 shadow-xl border-t-4 border-fuchsia-500">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-bold text-white flex items-center">
+                                <svg class="w-6 h-6 mr-2 text-fuchsia-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                Log Workout
+                            </h2>
+                        </div>
+                        
+                        <form id="log-form" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/50 shadow-inner">
+                                    <label class="block text-xs font-bold text-slate-300 mb-2 uppercase tracking-wide">Date</label>
+                                    <input type="date" id="log-date" required class="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-fuchsia-500 [color-scheme:dark] shadow-inner">
+                                </div>
+                                
+                                <div class="md:col-span-2">
+                                    <div id="planned-workout-container" class="hidden h-full p-4 bg-indigo-900/30 border border-indigo-500/50 rounded-xl fade-in flex flex-col justify-center shadow-inner relative overflow-hidden">
+                                        <div class="absolute right-0 top-0 h-full w-2 bg-indigo-500"></div>
+                                        <h4 class="text-indigo-300 text-xs font-bold mb-2 uppercase tracking-wider flex items-center">
+                                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                            Scheduled Plan for this Date
+                                        </h4>
+                                        <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-700/50 mb-3">
+                                            <p id="planned-workout-text" class="text-sm leading-relaxed"></p>
+                                        </div>
+                                        <button type="button" id="auto-fill-plan-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-lg text-sm transition shadow-md flex justify-center items-center">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                            Load Prescribed Sets & Reps
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-800/30 p-4 rounded-xl border border-slate-700/50 shadow-inner">
+                                    <div class="md:col-span-2 grid grid-cols-2 gap-4">
+                                        <div class="col-span-2 sm:col-span-1">
+                                            <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Category</label>
+                                            <select id="log-type" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white text-sm focus:border-fuchsia-500 appearance-none shadow-inner">
+                                                <option value="" disabled selected>Select...</option>
+                                                <option value="Cardio">Cardio / Endurance</option>
+                                                <option value="Weight Lifting">Weight Lifting</option>
+                                                <option value="Rest">Rest / Recovery</option>
+                                            </select>
+                                        </div>
+                                        <div id="log-subtype-container" class="hidden col-span-2 sm:col-span-1">
+                                            <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Specific Activity</label>
+                                            <select id="log-subtype" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white text-sm focus:border-fuchsia-500 appearance-none shadow-inner">
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Duration (Min)</label>
+                                        <input type="number" id="log-duration" placeholder="45" min="0" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white text-sm focus:border-fuchsia-500 shadow-inner">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Avg HR (bpm)</label>
+                                        <input type="number" id="log-hr" placeholder="145" min="0" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white text-sm focus:border-fuchsia-500 shadow-inner">
+                                    </div>
+                                </div>
+                                
+                                <div id="lifting-exercises-container" class="hidden md:col-span-3 bg-slate-900/60 p-5 rounded-xl border border-slate-600 shadow-inner">
+                                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-slate-700 pb-3">
+                                        <div>
+                                            <h4 class="text-base font-bold text-white flex items-center">
+                                                <svg class="w-5 h-5 mr-2 text-fuchsia-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path></svg>
+                                                Detailed Sets & Reps
+                                            </h4>
+                                            <p class="text-[11px] text-slate-400 mt-1">Leave weight empty or 0 for bodyweight exercises.</p>
+                                        </div>
+                                        <button type="button" id="add-exercise-btn" class="mt-3 sm:mt-0 text-xs font-bold bg-slate-700 hover:bg-slate-600 text-white px-4 py-2.5 rounded-lg transition shadow-md flex items-center border border-slate-500">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                            Add Row
+                                        </button>
+                                    </div>
+                                    <div id="exercise-rows" class="space-y-3">
+                                        <!-- Rows injected via JS -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-800/30 p-4 rounded-xl border border-slate-700/50 shadow-inner">
+                                <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Notes & Feedback</label>
+                                <textarea id="log-notes" rows="2" placeholder="Felt strong, good energy..." class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white text-sm focus:border-fuchsia-500 shadow-inner custom-scrollbar"></textarea>
+                            </div>
+                            
+                            <button type="button" id="save-log-btn" class="w-full bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-white font-bold py-4 px-8 rounded-xl shadow-lg transition active:scale-95 text-lg">
+                                Save to Workout Log
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- History Feed -->
+                    <div class="card-bg rounded-2xl p-6 shadow-xl border-t-4 border-slate-500 mt-6 relative overflow-hidden">
+                        <h2 class="text-xl font-bold mb-6 text-white border-b border-slate-700 pb-3">History Feed</h2>
+                        <div id="log-entries" class="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar relative z-10">
+                            <div id="empty-log-msg" class="text-center py-10 bg-slate-800/30 rounded-xl border border-slate-700/50 border-dashed">
+                                <svg class="w-12 h-12 text-slate-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <p class="text-slate-400 text-sm font-semibold">No workouts synced yet.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-view" class="hidden card-bg rounded-2xl p-6 md:p-8 shadow-2xl transition-all duration-500 fade-in border-t-4 border-amber-500">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-4 mb-6">
+                    <h2 class="text-2xl font-bold text-amber-400">Administrator Console</h2>
+                    <button type="button" id="admin-refresh-btn" class="text-sm bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-white border border-slate-600 transition shadow">
+                        Refresh User List
+                    </button>
+                </div>
+                
+                <div id="admin-users-list" class="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                    <p class="text-slate-400 text-sm italic">Click "Refresh User List" to fetch directory.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ==========================================
+        //  FIREBASE CONFIGURATION FOR LIVE HOSTING
+        // ==========================================
+        // 1. Go to console.firebase.google.com and create a project.
+        // 2. Enable Authentication (Email/Password) and Firestore Database.
+        // 3. Add a Web App to your project to get these keys, and paste them here:
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        //  ADMIN CONFIGURATION
+        const ADMIN_UID = 'REPLACE_WITH_YOUR_UID';
+        // ==========================================
+
+        const appId = 'dynamic-fitness-app';
+        
+        let app, auth, db;
+        let isLocalMode = true; 
+
+        // Initialize Firebase for Live Network
+        try {
+             // Check if user has replaced the placeholder API key with a real one
+             if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                 app = initializeApp(firebaseConfig);
+                 auth = getAuth(app);
+                 db = getFirestore(app);
+                 isLocalMode = false;
+                 console.log("Firebase initialized successfully for live network.");
+             } else {
+                 console.warn("Firebase config not set. Defaulting to Offline Mode.");
+                 isLocalMode = true;
+             }
+        } catch (e) {
+            console.error("Firebase init failed. Defaulting to local mode.", e);
+            isLocalMode = true;
+        }
+
+        let currentUserId = null;
+        let selectedActivities = [];
+        let currentPlanData = [];
+        let workoutLogs = [];
+
+        // Data Definitions
+        const ALL_ACTIVITIES = [
+            'Running', 'Walking', 'Elliptical', 'Swimming', 'Cycling', 'Rowing', 'Stair Climber', 'Jump Rope',
+            'Weight Lifting', 'Power Lifting', 'Bodyweight / Calisthenics', 'CrossFit', 'Warrior Games', 'Lose Weight (General)', 'Body Recomposition'
+        ];
+
+        const exercisesDict = {
+            'Chest': ['Bench Press (Barbell)', 'Bench Press (Dumbbell)', 'Incline Bench Press', 'Decline Bench Press', 'Push-ups', 'Cable Crossovers', 'Chest Flyes (Dumbbell)', 'Pec Deck Machine', 'Dips (Chest Focus)'],
+            'Back': ['Pull-ups', 'Chin-ups', 'Lat Pulldown', 'Deadlift', 'Barbell Row', 'Dumbbell Row', 'Seated Cable Row', 'T-Bar Row', 'Face Pulls', 'Back Extensions', 'Good Mornings'],
+            'Shoulders': ['Overhead Press (Barbell)', 'Overhead Press (Dumbbell)', 'Arnold Press', 'Lateral Raises', 'Front Raises', 'Reverse Pec Deck', 'Upright Rows', 'Shrugs', 'Push Press'],
+            'Biceps': ['Barbell Curl', 'Dumbbell Curl', 'Hammer Curl', 'Preacher Curl', 'Cable Curl', 'Incline Dumbbell Curl', 'Concentration Curl'],
+            'Triceps': ['Triceps Pushdown', 'Skull Crushers', 'Overhead Triceps Extension', 'Dips (Triceps Focus)', 'Close-Grip Bench Press', 'Triceps Kickbacks'],
+            'Quads': ['Back Squats', 'Front Squats', 'Leg Press', 'Lunges', 'Bulgarian Split Squats', 'Leg Extensions', 'Goblet Squats', 'Hack Squats'],
+            'Hamstrings': ['Romanian Deadlift (RDL)', 'Stiff-Legged Deadlift', 'Lying Leg Curl', 'Seated Leg Curl', 'Glute-Ham Raise', 'Kettlebell Swings'],
+            'Calves': ['Standing Calf Raise', 'Seated Calf Raise', 'Leg Press Calf Raise', 'Donkey Calf Raises'],
+            'Core / Abs': ['Crunches', 'Plank', 'Hanging Leg Raises', 'Cable Crunches', 'Russian Twists', 'Ab Wheel Rollouts']
+        };
+
+        const cardioOptions = `
+            <option value="" disabled selected>Select Cardio Type...</option>
+            <option value="Running">Running</option>
+            <option value="Walking">Walking</option>
+            <option value="Elliptical">Elliptical</option>
+            <option value="Swimming">Swimming</option>
+            <option value="Cycling">Cycling</option>
+            <option value="Rowing">Rowing</option>
+            <option value="Stair Climber">Stair Climber</option>
+            <option value="Jump Rope">Jump Rope</option>
+        `;
+
+        const authView = document.getElementById('auth-view');
+        const mainAppView = document.getElementById('main-app-view');
+        const authMsgBox = document.getElementById('auth-msg-box');
+        const authLoading = document.getElementById('auth-loading');
+
+        function enableLocalMode() {
+            console.warn("Local Mode Active: Bypassing authentication.");
+            isLocalMode = true; 
+            authView.style.display = 'none'; // Force hide it completely
+            mainAppView.classList.remove('hidden');
+            currentUserId = 'local-user';
+            document.getElementById('profile-uid').textContent = 'Local Mode (Data not saved to cloud)';
+            
+            const ind = document.getElementById('profile-save-indicator');
+            ind.innerHTML = `
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                Profile saved locally (will be lost on refresh).
+            `;
+            ind.classList.remove('bg-emerald-900/50', 'border-emerald-500', 'text-emerald-300');
+            ind.classList.add('bg-amber-900/50', 'border-amber-500', 'text-amber-300');
+        }
+
+        // Extremely aggressive check: if we are missing the core Firebase objects, activate offline mode IMMEDIATELY.
+        if (isLocalMode || typeof app === 'undefined' || !app || typeof auth === 'undefined' || !auth) {
+            enableLocalMode(); 
+        }
+
+        document.getElementById('btn-bypass').addEventListener('click', () => {
+            enableLocalMode();
+        });
+
+        function showAuthMessage(msg, type = "error") {
+            authMsgBox.classList.remove('hidden', 'bg-red-900/50', 'text-red-300', 'border-red-500', 'bg-emerald-900/50', 'text-emerald-300', 'border-emerald-500');
+            authMsgBox.textContent = msg;
+            if (type === "error") {
+                authMsgBox.classList.add('bg-red-900/50', 'text-red-300', 'border-red-500');
+            } else {
+                authMsgBox.classList.add('bg-emerald-900/50', 'text-emerald-300', 'border-emerald-500');
+            }
+        }
+
+        document.getElementById('btn-signup').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                // BULLETPROOF GUARD: Instantly bypass if auth object is missing
+                if (isLocalMode || typeof auth === 'undefined' || !auth || !auth.app) {
+                    enableLocalMode();
+                    return;
+                }
+                const email = document.getElementById('auth-email').value;
+                const pass = document.getElementById('auth-pass').value;
+                if(!email || pass.length < 6) return showAuthMessage("Valid email and 6+ char password required.");
+                
+                authLoading.classList.remove('hidden');
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                await sendEmailVerification(userCredential.user);
+                await signOut(auth);
+                authLoading.classList.add('hidden');
+                showAuthMessage("Account created! Please check your email and click the link to verify before logging in.", "success");
+            } catch (error) {
+                authLoading.classList.add('hidden');
+                enableLocalMode(); // Aggressively fallback to local mode if anything crashes
+            }
+        });
+
+        document.getElementById('btn-login').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                // BULLETPROOF GUARD: Instantly bypass if auth object is missing
+                if (isLocalMode || typeof auth === 'undefined' || !auth || !auth.app) {
+                    enableLocalMode();
+                    return;
+                }
+                const email = document.getElementById('auth-email').value;
+                const pass = document.getElementById('auth-pass').value;
+                if(!email || !pass) return showAuthMessage("Please enter email and password.");
+                
+                authLoading.classList.remove('hidden');
+                const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+                if (!userCredential.user.emailVerified) {
+                    await signOut(auth);
+                    authLoading.classList.add('hidden');
+                    showAuthMessage("You must verify your email before logging in. Please check your inbox.");
+                }
+            } catch (error) {
+                authLoading.classList.add('hidden');
+                enableLocalMode(); // Aggressively fallback to local mode if anything crashes
+            }
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', async () => {
+            if (isLocalMode || typeof auth === 'undefined' || !auth || !auth.app) {
+                alert("You are running in offline mode. Refresh the page to reset the local session.");
+                return;
+            }
+            if (auth) await signOut(auth);
+        });
+
+        if (!isLocalMode && typeof auth !== 'undefined' && auth && auth.app) {
+            onAuthStateChanged(auth, async (user) => {
+                if (user && user.emailVerified) {
+                    currentUserId = user.uid;
+                    document.getElementById('profile-uid').textContent = user.uid;
+
+                    try {
+                        if (db) {
+                            await setDoc(doc(db, 'artifacts', appId, 'directory', user.uid), { 
+                                email: user.email, 
+                                uid: user.uid, 
+                                lastLogin: new Date().toISOString() 
+                            }, {merge: true});
+                        }
+                    } catch(e) { console.log("Directory write failed", e); }
+
+                    if (user.uid === ADMIN_UID) {
+                        document.getElementById('tab-admin').classList.remove('hidden');
+                    } else {
+                        document.getElementById('tab-admin').classList.add('hidden');
+                    }
+
+                    authView.style.display = 'none';
+                    authLoading.classList.add('hidden');
+                    mainAppView.classList.remove('hidden');
+                    await loadCloudData();
+                } else {
+                    currentUserId = null;
+                    authView.style.display = 'block';
+                    mainAppView.classList.add('hidden');
+                    authLoading.classList.add('hidden');
+                }
+            });
+        }
+
+        async function loadCloudData() {
+            if(!currentUserId || isLocalMode || typeof db === 'undefined' || !db) return;
+            try {
+                // Fetch Profile
+                const profileRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'config', 'profile');
+                const pSnap = await getDoc(profileRef);
+                if(pSnap.exists()) {
+                    const data = pSnap.data();
+                    document.getElementById('age').value = data.age || '';
+                    document.getElementById('weight').value = data.weight || '';
+                    document.getElementById('rhr').value = data.rhr || '';
+                    document.getElementById('fitness').value = data.fitness || '';
+                    selectedActivities = data.activities || [];
+                    buildActivityCheckboxes();
+                    updateGoalDropdowns();
+                    document.getElementById('profile-status-text').innerHTML = `<span class="text-emerald-400">Profile synced from cloud.</span>`;
+                    document.getElementById('generate-btn').disabled = false;
+                }
+
+                // Fetch Plan
+                const planRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'config', 'currentPlan');
+                const planSnap = await getDoc(planRef);
+                if(planSnap.exists()) {
+                    currentPlanData = planSnap.data().schedule || [];
+                    document.getElementById('goal').value = planSnap.data().primaryGoal || '';
+                    document.getElementById('display-goal').textContent = planSnap.data().primaryGoal || '';
+                    if (currentPlanData.length > 0) {
+                        document.getElementById('start-date').value = currentPlanData[0].dateString;
+                        document.getElementById('end-date').value = currentPlanData[currentPlanData.length-1].dateString;
+                        renderPlanToUI();
+                    }
+                }
+
+                // Listen to Logs
+                const logsRef = collection(db, 'artifacts', appId, 'users', currentUserId, 'logs');
+                onSnapshot(logsRef, (snapshot) => {
+                    workoutLogs = [];
+                    snapshot.forEach(doc => workoutLogs.push({ ...doc.data(), fireId: doc.id }));
+                    renderHistoryFeed();
+                }, (error) => {
+                    console.error("Error fetching logs:", error);
+                });
+
+            } catch(e) {
+                console.error("Cloud sync error:", e);
+            }
+        }
+
+        const tabProfileBtn = document.getElementById('tab-profile');
+        const tabPlanBtn = document.getElementById('tab-plan');
+        const tabDashBtn = document.getElementById('tab-dash');
+        const tabAdminBtn = document.getElementById('tab-admin');
+        
+        const profileView = document.getElementById('profile-view');
+        const formContainer = document.getElementById('form-container');
+        const resultsContainer = document.getElementById('results-container');
+        const adminView = document.getElementById('admin-view');
+        
+        const actListContainer = document.getElementById('activities-list-container');
+        const secListContainer = document.getElementById('secondary-list-container');
+        const goalSelect = document.getElementById('goal');
+
+        function switchTab(tabName) {
+            [tabProfileBtn, tabPlanBtn, tabDashBtn, tabAdminBtn].forEach(btn => {
+                btn.classList.remove('text-sky-400', 'border-sky-400', 'text-amber-500', 'border-amber-500');
+                btn.classList.add('text-slate-400', 'border-transparent');
+            });
+            [profileView, formContainer, resultsContainer, adminView].forEach(view => view.classList.add('hidden'));
+
+            if (tabName === 'profile') {
+                tabProfileBtn.classList.add('text-sky-400', 'border-sky-400');
+                profileView.classList.remove('hidden');
+            } else if (tabName === 'plan') {
+                tabPlanBtn.classList.add('text-sky-400', 'border-sky-400');
+                formContainer.classList.remove('hidden');
+            } else if (tabName === 'dash') {
+                tabDashBtn.classList.add('text-sky-400', 'border-sky-400');
+                resultsContainer.classList.remove('hidden');
+            } else if (tabName === 'admin') {
+                tabAdminBtn.classList.add('text-amber-500', 'border-amber-500');
+                adminView.classList.remove('hidden');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        tabProfileBtn.addEventListener('click', () => switchTab('profile'));
+        tabPlanBtn.addEventListener('click', () => switchTab('plan'));
+        tabDashBtn.addEventListener('click', () => switchTab('dash'));
+        tabAdminBtn.addEventListener('click', () => switchTab('admin'));
+        document.getElementById('edit-profile-jump').addEventListener('click', () => switchTab('profile'));
+
+        function buildActivityCheckboxes() {
+            actListContainer.innerHTML = ALL_ACTIVITIES.map(act => `
+                <label class="bg-slate-800 border border-slate-700 hover:border-sky-500 rounded p-2 text-sm flex items-center mb-1">
+                    <input type="checkbox" value="${act}" class="act-checkbox mr-2 w-4 h-4" ${selectedActivities.includes(act) ? 'checked' : ''}>
+                    <span class="text-slate-200">${act}</span>
+                </label>
+            `).join('');
+
+            actListContainer.querySelectorAll('.act-checkbox').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    const checked = actListContainer.querySelectorAll('.act-checkbox:checked');
+                    selectedActivities = Array.from(checked).map(c => c.value);
+                    updateGoalDropdowns();
+                });
+            });
+        }
+        buildActivityCheckboxes(); 
+
+        function updateGoalDropdowns() {
+            if(selectedActivities.length > 0) {
+                goalSelect.disabled = false;
+                goalSelect.innerHTML = '<option value="" disabled selected>Select Primary Goal...</option>' + 
+                    selectedActivities.map(act => `<option value="${act}">${act}</option>`).join('');
+                    
+                secListContainer.classList.remove('opacity-50');
+                secListContainer.innerHTML = selectedActivities.map(act => `
+                    <label class="bg-slate-800 border border-slate-700 rounded p-1.5 text-xs flex items-center mb-1">
+                        <input type="checkbox" value="${act}" class="sec-checkbox mr-2 w-3 h-3">
+                        <span class="text-slate-200">${act}</span>
+                    </label>
+                `).join('');
+            } else {
+                goalSelect.disabled = true;
+                goalSelect.innerHTML = '<option value="" disabled selected>Select activities first...</option>';
+                secListContainer.classList.add('opacity-50');
+                secListContainer.innerHTML = '<p class="text-sm text-slate-500 p-2 italic text-center mt-6">Select activities in Profile first...</p>';
+            }
+        }
+
+        document.getElementById('save-profile-btn').addEventListener('click', async () => {
+            const age = document.getElementById('age').value;
+            const weight = document.getElementById('weight').value;
+            const rhr = document.getElementById('rhr').value;
+            const fitness = document.getElementById('fitness').value;
+            
+            if(!age || !weight || selectedActivities.length === 0) {
+                alert("Please fill out Age, Weight, and select at least one Current Activity.");
+                return;
+            }
+
+            if(currentUserId && !isLocalMode && typeof db !== 'undefined' && db) {
+                try {
+                    const profileRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'config', 'profile');
+                    await setDoc(profileRef, { age, weight, rhr, fitness, activities: selectedActivities }, {merge: true});
+                } catch(e) { console.error("Could not save profile to cloud", e); }
+            }
+
+            document.getElementById('profile-save-indicator').classList.remove('hidden');
+            setTimeout(() => document.getElementById('profile-save-indicator').classList.add('hidden'), 3000);
+            
+            if(isLocalMode) {
+                 document.getElementById('profile-status-text').innerHTML = `<span class="text-amber-400">Profile saved locally. Ready to generate plan.</span>`;
+            } else {
+                 document.getElementById('profile-status-text').innerHTML = `<span class="text-emerald-400">Complete. Ready to generate plan.</span>`;
+            }
+            document.getElementById('generate-btn').disabled = false;
+            switchTab('plan');
+        });
+
+        function getProgressiveRepScheme(weekNum) {
+            const phase = ((weekNum - 1) % 4) + 1; 
+            if (phase === 1) return { sets: 3, reps: '12' };
+            if (phase === 2) return { sets: 3, reps: '10' };
+            if (phase === 3) return { sets: 4, reps: '8' }; 
+            if (phase === 4) return { sets: 5, reps: '5' }; 
+            return { sets: 3, reps: '10' };
+        }
+
+        function generateLiftingWorkout(dayTitle, weekNum) {
+            const scheme = getProgressiveRepScheme(weekNum);
+            let exercises = [];
+            if (dayTitle.includes('Lower Body') || dayTitle.includes('Legs')) {
+                exercises.push({ bodyPart: 'Quads', exercise: 'Back Squats', sets: scheme.sets, reps: scheme.reps, weight: '' });
+                exercises.push({ bodyPart: 'Hamstrings', exercise: 'Romanian Deadlift (RDL)', sets: 3, reps: '10', weight: '' });
+                exercises.push({ bodyPart: 'Calves', exercise: 'Standing Calf Raise', sets: 4, reps: '15', weight: '' });
+            } else if (dayTitle.includes('Upper Body Push')) {
+                exercises.push({ bodyPart: 'Chest', exercise: 'Bench Press (Barbell)', sets: scheme.sets, reps: scheme.reps, weight: '' });
+                exercises.push({ bodyPart: 'Shoulders', exercise: 'Overhead Press (Dumbbell)', sets: 3, reps: '10', weight: '' });
+                exercises.push({ bodyPart: 'Triceps', exercise: 'Triceps Pushdown', sets: 3, reps: '12', weight: '' });
+            } else if (dayTitle.includes('Upper Body Pull')) {
+                exercises.push({ bodyPart: 'Back', exercise: 'Pull-ups', sets: 3, reps: 'Max', weight: '0' });
+                exercises.push({ bodyPart: 'Back', exercise: 'Barbell Row', sets: scheme.sets, reps: scheme.reps, weight: '' });
+                exercises.push({ bodyPart: 'Biceps', exercise: 'Dumbbell Curl', sets: 3, reps: '12', weight: '' });
+            } else if (dayTitle.includes('Full Body')) {
+                exercises.push({ bodyPart: 'Quads', exercise: 'Goblet Squats', sets: 3, reps: '12', weight: '' });
+                exercises.push({ bodyPart: 'Chest', exercise: 'Push-ups', sets: 3, reps: 'Max', weight: '0' });
+                exercises.push({ bodyPart: 'Core / Abs', exercise: 'Plank', sets: 3, reps: '60s', weight: '0' });
+            }
+            return exercises;
+        }
+
+        document.getElementById('generate-btn').addEventListener('click', async () => {
+            const startStr = document.getElementById('start-date').value;
+            const endStr = document.getElementById('end-date').value;
+            const primaryGoal = document.getElementById('goal').value;
+            if(!startStr || !endStr || !primaryGoal) return;
+
+            const startDate = new Date(startStr + "T00:00:00");
+            const endDate = new Date(endStr + "T00:00:00");
+            const daysDiff = Math.ceil((endDate - startDate) / (1000 * 3600 * 24)) + 1;
+
+            document.getElementById('display-goal').textContent = primaryGoal;
+            document.getElementById('plan-duration').textContent = `${daysDiff} Days`;
+
+            const template = [
+                { title: 'Heavy Lower Body', desc: 'Squats, deadlifts, and posterior chain focus.' },
+                { title: 'Upper Body Push', desc: 'Bench press, overhead press, triceps.' },
+                { title: 'Active Recovery Cardio', desc: '30 mins easy Zone 2 cardio.' },
+                { title: 'Upper Body Pull', desc: 'Rows, pull-ups, biceps.' },
+                { title: 'Legs Hypertrophy', desc: 'Higher rep ranges for legs.' },
+                { title: 'Full Body Core', desc: 'Functional movements and core.' },
+                { title: 'Rest', desc: 'Complete physical rest.' }
+            ];
+
+            currentPlanData = [];
+            for (let i = 0; i < daysDiff; i++) {
+                const currentDate = new Date(startDate);
+                currentDate.setDate(startDate.getDate() + i);
+                const isoStr = currentDate.toISOString().split('T')[0];
+                const dayIndex = currentDate.getDay(); 
+                const weekNum = Math.floor(i / 7) + 1;
+                
+                const templateIndex = dayIndex === 0 ? 6 : dayIndex - 1; 
+                const workout = template[templateIndex];
+                const isLifting = workout.title.includes('Body') || workout.title.includes('Legs');
+                const generatedExercises = isLifting ? generateLiftingWorkout(workout.title, weekNum) : [];
+
+                currentPlanData.push({
+                    dateString: isoStr,
+                    formattedDate: currentDate.toLocaleDateString(undefined, {weekday: 'short', month: 'short', day: 'numeric'}),
+                    weekNum: weekNum,
+                    title: workout.title,
+                    desc: workout.desc,
+                    exercises: generatedExercises
+                });
+            }
+
+            if(currentUserId && !isLocalMode && typeof db !== 'undefined' && db) {
+                try {
+                    const planRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'config', 'currentPlan');
+                    await setDoc(planRef, { schedule: currentPlanData, primaryGoal: primaryGoal });
+                } catch(e) { console.error("Could not save plan to cloud", e); }
+            }
+
+            renderPlanToUI();
+            switchTab('dash');
+            document.getElementById('plan-view').classList.remove('hidden');
+            document.getElementById('log-view').classList.add('hidden');
+            
+            try { document.getElementById('log-date').valueAsDate = new Date(); } catch(e){}
+            syncLogWithPlan(document.getElementById('log-date').value);
+        });
+
+        function renderPlanToUI() {
+            const container = document.getElementById('weekly-schedule');
+            container.innerHTML = '';
+            let currentWeek = 0;
+
+            currentPlanData.forEach(day => {
+                if (day.weekNum > currentWeek) {
+                    currentWeek = day.weekNum;
+                    container.innerHTML += `
+                        <div class="sticky top-0 bg-slate-800/95 backdrop-blur z-20 p-2 mt-4 mb-2 rounded border-b border-slate-600 flex justify-between shadow-md">
+                            <h3 class="text-sky-400 font-bold text-sm uppercase tracking-wide">Week ${currentWeek}</h3>
+                        </div>
+                    `;
+                }
+
+                let exPreview = '';
+                if (day.exercises && day.exercises.length > 0) {
+                    exPreview = '<div class="mt-2 pl-3 border-l-2 border-indigo-500/30 text-xs text-slate-300 space-y-1">';
+                    day.exercises.forEach(ex => {
+                        exPreview += `<div>• ${ex.exercise} <span class="text-slate-500 ml-1">(${ex.sets}x${ex.reps})</span></div>`;
+                    });
+                    exPreview += '</div>';
+                }
+
+                container.innerHTML += `
+                    <div class="flex flex-col sm:flex-row bg-slate-900/60 rounded-lg p-3 border-l-4 border-indigo-500 mb-2 shadow-sm">
+                        <div class="sm:w-32 font-bold text-indigo-300 text-sm mb-1 sm:mb-0 pt-0.5">${day.formattedDate}</div>
+                        <div class="flex-1">
+                            <div class="font-bold text-white text-base">${day.title}</div>
+                            <div class="text-slate-400 text-sm mt-1">${day.desc}</div>
+                            ${exPreview}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById('back-btn').addEventListener('click', () => switchTab('plan'));
+        document.getElementById('view-plan-btn').addEventListener('click', () => {
+            document.getElementById('plan-view').classList.remove('hidden');
+            document.getElementById('log-view').classList.add('hidden');
+            document.getElementById('view-plan-btn').classList.add('bg-indigo-600', 'text-white');
+            document.getElementById('view-log-btn').classList.remove('bg-indigo-600', 'text-white');
+        });
+        document.getElementById('view-log-btn').addEventListener('click', () => {
+            document.getElementById('log-view').classList.remove('hidden');
+            document.getElementById('plan-view').classList.add('hidden');
+            document.getElementById('view-log-btn').classList.add('bg-indigo-600', 'text-white');
+            document.getElementById('view-plan-btn').classList.remove('bg-indigo-600', 'text-white');
+        });
+
+        const logTypeSelect = document.getElementById('log-type');
+        const logSubtypeSelect = document.getElementById('log-subtype');
+        const logSubtypeContainer = document.getElementById('log-subtype-container');
+        const liftingExercisesContainer = document.getElementById('lifting-exercises-container');
+        const exerciseRowsContainer = document.getElementById('exercise-rows');
+
+        logTypeSelect.addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (val === 'Cardio') {
+                logSubtypeContainer.classList.remove('hidden');
+                liftingExercisesContainer.classList.add('hidden');
+                logSubtypeSelect.innerHTML = cardioOptions;
+            } else if (val === 'Weight Lifting') {
+                logSubtypeContainer.classList.add('hidden');
+                liftingExercisesContainer.classList.remove('hidden');
+                if(exerciseRowsContainer.children.length === 0) addExerciseRow();
+            } else {
+                logSubtypeContainer.classList.add('hidden');
+                liftingExercisesContainer.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('add-exercise-btn').addEventListener('click', () => addExerciseRow());
+
+        function addExerciseRow(prefillData = null) {
+            const rowId = 'ex-' + Date.now() + Math.floor(Math.random()*1000);
+            
+            let bpOptions = `<option value="" disabled ${!prefillData ? 'selected' : ''}>Select...</option>`;
+            Object.keys(exercisesDict).forEach(bp => {
+                const selected = prefillData && prefillData.bodyPart === bp ? 'selected' : '';
+                bpOptions += `<option value="${bp}" ${selected}>${bp}</option>`;
+            });
+
+            const difficultySelect = `
+                <select class="ex-diff w-full bg-slate-900 border border-slate-600 rounded-md px-2 py-2 text-white text-[11px] font-bold focus:border-amber-500 appearance-none shadow-inner">
+                    <option value="Just Right" selected>Just Right</option>
+                    <option value="Too Easy">Too Easy (Increase)</option>
+                    <option value="Too Hard">Too Hard (Decrease)</option>
+                </select>
+            `;
+
+            const rowHtml = `
+                <div id="${rowId}" class="flex flex-col md:flex-row gap-3 items-start bg-slate-800 p-3 rounded-lg relative group border border-slate-700/50 shadow-sm fade-in">
+                    <div class="w-full md:w-1/4">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Body Part</label>
+                        <select class="ex-bodypart w-full bg-slate-900 border border-slate-600 rounded-md px-3 py-2 text-white text-sm focus:border-fuchsia-500 shadow-inner appearance-none">
+                            ${bpOptions}
+                        </select>
+                    </div>
+                    <div class="w-full md:flex-1">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Specific Exercise</label>
+                        <select class="ex-name w-full bg-slate-900 border border-slate-600 rounded-md px-3 py-2 text-white text-sm focus:border-fuchsia-500 shadow-inner appearance-none" ${!prefillData ? 'disabled' : ''}>
+                            <option value="" disabled ${!prefillData ? 'selected' : ''}>Waiting for Body Part...</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <div class="flex-1 md:w-20">
+                            <label class="block text-[10px] font-bold text-sky-400 uppercase tracking-wider mb-1 text-center">Weight</label>
+                            <input type="number" class="ex-weight w-full bg-slate-900 border border-sky-600/50 rounded-md px-1 py-2 text-white text-sm text-center shadow-inner" placeholder="lbs" min="0" value="${prefillData ? prefillData.weight : ''}">
+                        </div>
+                        <div class="flex-1 md:w-16">
+                            <label class="block text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1 text-center">Sets</label>
+                            <input type="number" class="ex-sets w-full bg-slate-900 border border-emerald-600/50 rounded-md px-1 py-2 text-white text-sm text-center shadow-inner" placeholder="#" min="1" value="${prefillData ? prefillData.sets : ''}">
+                        </div>
+                        <div class="flex-1 md:w-16">
+                            <label class="block text-[10px] font-bold text-fuchsia-400 uppercase tracking-wider mb-1 text-center">Reps</label>
+                            <input type="text" class="ex-reps w-full bg-slate-900 border border-fuchsia-600/50 rounded-md px-1 py-2 text-white text-sm text-center shadow-inner" placeholder="#" value="${prefillData ? prefillData.reps : ''}">
+                        </div>
+                    </div>
+                    <div class="w-full md:w-32 mt-2 md:mt-0">
+                        <label class="block text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1 text-center">Difficulty</label>
+                        ${difficultySelect}
+                    </div>
+                    <button type="button" class="btn-remove-row absolute top-2 right-2 md:static md:ml-1 md:mt-5 text-slate-500 hover:text-red-400 p-1.5 rounded-md hover:bg-slate-700 transition" title="Remove Row">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                </div>
+            `;
+            exerciseRowsContainer.insertAdjacentHTML('beforeend', rowHtml);
+
+            const newRow = document.getElementById(rowId);
+            const bpSelect = newRow.querySelector('.ex-bodypart');
+            const exSelect = newRow.querySelector('.ex-name');
+            const removeBtn = newRow.querySelector('.btn-remove-row');
+
+            removeBtn.addEventListener('click', () => newRow.remove());
+
+            const populateExDropdown = (bpVal, selectedEx = null) => {
+                if(bpVal && exercisesDict[bpVal]) {
+                    exSelect.innerHTML = `<option value="" disabled ${!selectedEx ? 'selected' : ''}>Select movement...</option>` + 
+                        exercisesDict[bpVal].map(ex => `<option value="${ex}" ${selectedEx === ex ? 'selected' : ''}>${ex}</option>`).join('') +
+                        `<option value="Other">Other Custom...</option>`;
+                    exSelect.disabled = false;
+                }
+            };
+
+            if (prefillData && prefillData.bodyPart) {
+                populateExDropdown(prefillData.bodyPart, prefillData.exercise);
+            }
+
+            bpSelect.addEventListener('change', (e) => populateExDropdown(e.target.value));
+        }
+
+        const logDateInput = document.getElementById('log-date');
+        const plannedContainer = document.getElementById('planned-workout-container');
+        const plannedText = document.getElementById('planned-workout-text');
+        const autoFillBtn = document.getElementById('auto-fill-plan-btn');
+
+        logDateInput.addEventListener('change', (e) => syncLogWithPlan(e.target.value));
+
+        function syncLogWithPlan(dateStr) {
+            const planItem = currentPlanData.find(p => p.dateString === dateStr);
+            if (planItem) {
+                plannedText.innerHTML = `<span class="font-bold text-sky-400 block">${planItem.title}</span><span class="text-slate-300 text-xs">${planItem.desc}</span>`;
+                plannedContainer.classList.remove('hidden');
+                
+                if(planItem.exercises && planItem.exercises.length > 0) {
+                    autoFillBtn.classList.remove('hidden');
+                    autoFillBtn.onclick = () => {
+                        logTypeSelect.value = "Weight Lifting";
+                        logTypeSelect.dispatchEvent(new Event('change'));
+                        exerciseRowsContainer.innerHTML = ''; 
+                        planItem.exercises.forEach(ex => addExerciseRow(ex));
+                        document.getElementById('log-notes').value = "Completed prescribed plan.";
+                    };
+                } else {
+                    autoFillBtn.classList.add('hidden');
+                }
+            } else {
+                plannedContainer.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('save-log-btn').addEventListener('click', async () => {
+            const dateStr = logDateInput.value;
+            const baseType = logTypeSelect.value;
+            if (!dateStr || !baseType) {
+                alert("Please select a date and workout category.");
+                return;
+            }
+            
+            let detailedExercises = [];
+
+            if (baseType === 'Weight Lifting') {
+                const rows = exerciseRowsContainer.querySelectorAll('div[id^="ex-"]');
+                rows.forEach(row => {
+                    const bp = row.querySelector('.ex-bodypart').value;
+                    const name = row.querySelector('.ex-name').value;
+                    const weight = row.querySelector('.ex-weight').value;
+                    const sets = row.querySelector('.ex-sets').value;
+                    const reps = row.querySelector('.ex-reps').value;
+                    const difficulty = row.querySelector('.ex-diff').value;
+                    
+                    if (bp && name) {
+                        const loggedWeightVal = parseInt(weight) || 0;
+                        detailedExercises.push({ bodyPart: bp, exercise: name, weight: loggedWeightVal, sets: parseInt(sets) || 0, reps: reps || '0', difficulty: difficulty });
+                        
+                        if (difficulty === "Too Easy") adaptFutureWorkouts(name, 5, loggedWeightVal);
+                        else if (difficulty === "Too Hard") adaptFutureWorkouts(name, -5, loggedWeightVal);
+                        else if (difficulty === "Just Right") adaptFutureWorkouts(name, 0, loggedWeightVal);
+                    }
+                });
+            }
+
+            const newLog = {
+                date: dateStr,
+                type: baseType === 'Weight Lifting' ? 'Weight Lifting' : `${baseType} - ${document.getElementById('log-subtype').value || ''}`,
+                duration: document.getElementById('log-duration').value,
+                notes: document.getElementById('log-notes').value,
+                exercises: detailedExercises,
+                timestamp: new Date().toISOString()
+            };
+
+            if (isLocalMode) {
+                 newLog.fireId = Date.now().toString();
+                 workoutLogs.push(newLog);
+                 renderHistoryFeed();
+            } else if(currentUserId && typeof db !== 'undefined' && db) {
+                try {
+                    const logsRef = collection(db, 'artifacts', appId, 'users', currentUserId, 'logs');
+                    await updateDoc(doc(db, 'artifacts', appId, 'users', currentUserId, 'config', 'currentPlan'), { schedule: currentPlanData }); // Sync adaptations
+                    const docRef = doc(logsRef);
+                    await setDoc(docRef, newLog);
+                } catch(e) {
+                    console.error("Failed to save log:", e);
+                }
+            }
+            
+            document.getElementById('log-form').reset();
+            exerciseRowsContainer.innerHTML = '';
+            logTypeSelect.dispatchEvent(new Event('change'));
+        });
+
+        async function adaptFutureWorkouts(exerciseName, weightChange, loggedWeight) {
+            const logDate = new Date(logDateInput.value);
+            currentPlanData.forEach(day => {
+                const dayDate = new Date(day.dateString);
+                if (dayDate > logDate && day.exercises) {
+                    day.exercises.forEach(ex => {
+                        if (ex.exercise === exerciseName) {
+                            const currentPlannedWeight = parseInt(ex.weight) || 0;
+                            const baseWeight = currentPlannedWeight > 0 ? currentPlannedWeight : loggedWeight;
+                            if (baseWeight > 0 || weightChange !== 0) {
+                                ex.weight = Math.max(0, baseWeight + weightChange);
+                            }
+                        }
+                    });
+                }
+            });
+            renderPlanToUI();
+        }
+
+        function renderHistoryFeed() {
+            const container = document.getElementById('log-entries');
+            if (workoutLogs.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 bg-slate-800/30 rounded-xl border border-slate-700/50 border-dashed">
+                        <svg class="w-12 h-12 text-slate-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <p class="text-slate-400 text-sm font-semibold">No workouts synced yet.</p>
+                    </div>`;
+                return;
+            }
+            
+            container.innerHTML = '';
+            [...workoutLogs].sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(log => {
+                let exHtml = '';
+                if (log.exercises && log.exercises.length > 0) {
+                    exHtml = '<div class="mt-3 space-y-2">';
+                    log.exercises.forEach(ex => {
+                        let weightDisplay = "BW";
+                        if (ex.weight && ex.weight > 0) {
+                            weightDisplay = `${ex.weight}lbs`;
+                        } else if (ex.weight === 0 && log.type === 'Weight Lifting') {
+                            weightDisplay = "Bodyweight";
+                        }
+
+                        exHtml += `
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between text-sm bg-slate-900/60 p-2.5 rounded border border-slate-700/50">
+                                <div><span class="font-bold text-white">${ex.exercise}</span> <span class="text-[10px] text-slate-500 uppercase ml-1">(${ex.difficulty})</span></div>
+                                <div class="space-x-2 mt-1 sm:mt-0 flex items-center">
+                                    <span class="text-fuchsia-300 font-mono text-xs font-bold bg-slate-900 px-2 py-0.5 rounded border border-slate-700">${ex.sets}x${ex.reps}</span>
+                                    <span class="text-slate-200 bg-indigo-900/50 px-2 py-0.5 rounded border border-indigo-500/50 text-xs font-bold">${weightDisplay}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    exHtml += '</div>';
+                }
+
+                container.innerHTML += `
+                    <div class="bg-slate-800/90 p-4 rounded-xl border-l-4 border-fuchsia-500 shadow-md">
+                        <div class="flex justify-between font-bold text-white mb-2">
+                            <span>${log.type}</span>
+                            <span class="text-xs text-fuchsia-300 bg-fuchsia-900/30 px-2 py-1 rounded">${log.date}</span>
+                        </div>
+                        ${log.duration ? `<div class="text-xs text-slate-400 mb-2">Duration: <span class="text-slate-200">${log.duration} min</span></div>` : ''}
+                        ${exHtml}
+                        ${log.notes ? `<div class="mt-3 text-sm text-slate-300 italic border-l-2 border-slate-600 pl-3 py-1 bg-slate-900/30 rounded-r">${log.notes}</div>` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById('admin-refresh-btn').addEventListener('click', async () => {
+            if (currentUserId !== ADMIN_UID) return;
+            
+            const listContainer = document.getElementById('admin-users-list');
+            listContainer.innerHTML = `<div class="text-amber-400 text-sm">Fetching user directory...</div>`;
+            
+            try {
+                if(typeof db === 'undefined' || !db) throw new Error("No database connection");
+                
+                const directorySnap = await getDocs(collection(db, 'artifacts', appId, 'directory'));
+                if (directorySnap.empty) {
+                    listContainer.innerHTML = `<div class="text-slate-400 text-sm">No users found.</div>`;
+                    return;
+                }
+
+                listContainer.innerHTML = '';
+                
+                for (const userDoc of directorySnap.docs) {
+                    const userData = userDoc.data();
+                    let profileHtml = '<span class="text-slate-500 text-xs italic">No profile data saved yet.</span>';
+                    
+                    try {
+                        const profSnap = await getDoc(doc(db, 'artifacts', appId, 'users', userData.uid, 'config', 'profile'));
+                        if (profSnap.exists()) {
+                            const p = profSnap.data();
+                            profileHtml = `
+                                <div class="grid grid-cols-2 gap-2 text-xs mt-2 bg-slate-900/50 p-2 rounded">
+                                    <div><span class="text-slate-400">Age:</span> ${p.age || '-'}</div>
+                                    <div><span class="text-slate-400">Weight:</span> ${p.weight || '-'}</div>
+                                    <div><span class="text-slate-400">Fitness:</span> ${p.fitness || '-'}</div>
+                                    <div><span class="text-slate-400">Activities:</span> ${p.activities ? p.activities.length : 0}</div>
+                                </div>
+                            `;
+                        }
+                    } catch(e) { console.log("Profile fetch err", e); }
+
+                    listContainer.innerHTML += `
+                        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-bold text-white">${userData.email}</h4>
+                                    <p class="text-[10px] text-slate-500 font-mono mt-1">${userData.uid}</p>
+                                </div>
+                                <span class="text-[10px] bg-slate-900 px-2 py-1 rounded text-slate-400">Last Login: ${new Date(userData.lastLogin).toLocaleDateString()}</span>
+                            </div>
+                            ${profileHtml}
+                        </div>
+                    `;
+                }
+            } catch(e) {
+                console.error(e);
+                listContainer.innerHTML = `<div class="text-red-400 text-sm">Error fetching directory. You are likely in Local/Offline mode.</div>`;
+            }
+        });
+    </script>
+</body>
+</html>
