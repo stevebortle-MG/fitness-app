@@ -365,6 +365,12 @@ import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://
 // ==========================================
 
 
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -375,9 +381,11 @@ const firebaseConfig = {
   messagingSenderId: "597708121589",
   appId: "1:597708121589:web:9540bf430c52eb60502cbc",
   measurementId: "G-QL96DL26P8"
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 const ADMIN_UID = 'YOUR_ADMIN_USER_UID_HERE'; 
 const GEMINI_API_KEY = 'AQ.Ab8RN6Iqc-Rqc5AbWLR1mS8y7s9WaXP5Cpv8fajVBClOypE1Jw';
