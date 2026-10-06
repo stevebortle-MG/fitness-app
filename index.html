@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Fitness Plan | Custom Training & Log</title>
+    <title>Warrior Fitness Plan | Custom Training & Log</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     
@@ -65,8 +65,8 @@
 <body>
     <div id="auth-view" class="w-full max-w-md mx-auto mt-16 px-4 fade-in">
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-extrabold mb-2 tracking-tight">
-                Dynamic <span class="gradient-text">Fitness Plan</span>
+            <h1 id="auth-title" class="text-3xl font-extrabold mb-2 tracking-tight cursor-default select-none" title="Double-click for Admin Login">
+                Warrior <span class="gradient-text">Fitness Plan</span>
             </h1>
             <p class="text-slate-400 text-sm">Sign in to sync your workouts securely.</p>
         </div>
@@ -98,11 +98,10 @@
                     <button type="button" id="btn-signup" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-3 rounded-xl shadow-md transition active:scale-95 border border-slate-500">
                         Create Account
                     </button>
-                    <!-- Emergency Bypass Button for Local Testing -->
-                    <button type="button" id="btn-bypass" class="w-full mt-2 bg-transparent hover:bg-slate-800 text-amber-500 font-bold py-2 rounded-xl transition border border-amber-600/50">
-                        Bypass Login (Offline Mode)
-                    </button>
                 </div>
+                <button type="button" id="hidden-admin-btn" class="absolute bottom-3 right-3 text-slate-800 hover:text-slate-500 transition opacity-0 hover:opacity-100 p-2 z-20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </button>
                 <p class="text-center text-xs text-slate-500 mt-4">A confirmation email will be sent upon account creation.</p>
             </form>
         </div>
@@ -115,7 +114,7 @@
                 Log Out
             </button>
             <h1 class="text-3xl md:text-5xl font-extrabold mb-2 tracking-tight mt-8 md:mt-0">
-                Dynamic <span class="gradient-text">Fitness Plan</span>
+                Warrior <span class="gradient-text">Fitness Plan</span>
             </h1>
         </header>
 
@@ -614,8 +613,34 @@
             enableLocalMode(); 
         }
 
-        document.getElementById('btn-bypass').addEventListener('click', () => {
-            enableLocalMode();
+        // Hidden Admin Login Logic
+        document.getElementById('hidden-admin-btn').addEventListener('click', async () => {
+            if (isLocalMode || typeof auth === 'undefined' || !auth) {
+                alert("Network error: Cannot access cloud admin login while offline.");
+                return;
+            }
+            const email = prompt("Secret Admin Portal - Enter Email:");
+            if (!email) return;
+            const pass = prompt("Enter Password:");
+            if (!pass) return;
+
+            authLoading.classList.remove('hidden');
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+                if (!userCredential.user.emailVerified) {
+                    await signOut(auth);
+                    authLoading.classList.add('hidden');
+                    showAuthMessage("Admin email not verified. Check inbox.");
+                }
+            } catch (error) {
+                authLoading.classList.add('hidden');
+                showAuthMessage("Admin login failed. Invalid credentials.");
+            }
+        });
+
+        // Secret double-click on title for Admin Login
+        document.getElementById('auth-title').addEventListener('dblclick', () => {
+            document.getElementById('hidden-admin-btn').click();
         });
 
         function showAuthMessage(msg, type = "error") {
