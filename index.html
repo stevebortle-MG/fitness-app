@@ -479,8 +479,9 @@
         // 4. USER PROFILE & METRICS
         // ==========================================
         async function loadUserProfile() {
+            if(!currentUser) return;
             try {
-                const docSnap = await getDoc(doc(db, "users", currentUser.uid));
+                const docSnap = await getDoc(doc(db, "artifacts", appId, "users", currentUser.uid, "profile", "data"));
                 if (docSnap.exists()) {
                     currentProfileData = docSnap.data();
                     const d = currentProfileData;
@@ -519,7 +520,8 @@
         }
 
         ['prof-dob', 'prof-height-ft', 'prof-height-in', 'prof-weight'].forEach(id => {
-            document.getElementById(id).addEventListener('input', calculateMetrics);
+            const el = document.getElementById(id);
+            if(el) el.addEventListener('input', calculateMetrics);
         });
 
         document.getElementById('save-profile-btn').addEventListener('click', async () => {
@@ -537,12 +539,17 @@
                 lastUpdated: new Date().toISOString()
             };
 
-            await setDoc(doc(db, "users", currentUser.uid), data, { merge: true });
-            currentProfileData = data;
-            
-            const msg = document.getElementById('profile-msg');
-            msg.classList.remove('hidden');
-            setTimeout(() => msg.classList.add('hidden'), 3000);
+            try {
+                await setDoc(doc(db, "artifacts", appId, "users", currentUser.uid, "profile", "data"), data, { merge: true });
+                currentProfileData = data;
+                
+                const msg = document.getElementById('profile-msg');
+                msg.classList.remove('hidden');
+                setTimeout(() => msg.classList.add('hidden'), 3000);
+            } catch(err) {
+                console.error("Failed to save profile:", err);
+                alert("Error saving profile. Check console.");
+            }
         });
 
         // ==========================================
@@ -722,10 +729,14 @@
             previewBanner.classList.add('hidden');
             
             stagedPlan.timestamp = new Date().toISOString();
-            await setDoc(doc(db, "plans", currentUser.uid), stagedPlan);
-            
-            renderPlanToUI(stagedPlan, false);
-            stagedPlan = null;
+            try {
+                await setDoc(doc(db, "artifacts", appId, "users", currentUser.uid, "plans", "active"), stagedPlan);
+                renderPlanToUI(stagedPlan, false);
+                stagedPlan = null;
+            } catch(e) {
+                console.error("Error saving plan:", e);
+                alert("Failed to save plan to database.");
+            }
         });
 
         document.getElementById('discard-plan-btn').addEventListener('click', discardPlan);
@@ -749,8 +760,9 @@
         // 7. RENDER DASHBOARD & ADMIN AREA
         // ==========================================
         async function loadUserPlan() {
+            if(!currentUser) return;
             try {
-                const docSnap = await getDoc(doc(db, "plans", currentUser.uid));
+                const docSnap = await getDoc(doc(db, "artifacts", appId, "users", currentUser.uid, "plans", "active"));
                 if (docSnap.exists()) {
                     renderPlanToUI(docSnap.data(), false);
                 } else {
@@ -797,8 +809,8 @@
             if(!currentUser || currentUser.uid !== ADMIN_UID) return;
             
             try {
-                const usersSnap = await getDocs(collection(db, "users"));
-                const plansSnap = await getDocs(collection(db, "plans"));
+                const usersSnap = await getDocs(collection(db, "artifacts", appId, "public", "data", "users"));
+                const plansSnap = await getDocs(collection(db, "artifacts", appId, "public", "data", "plans"));
                 
                 document.getElementById('admin-total-users').textContent = usersSnap.size;
                 document.getElementById('admin-total-plans').textContent = plansSnap.size;
