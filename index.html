@@ -365,12 +365,23 @@
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-4 gap-4">
                             <div>
                                 <h2 class="text-2xl font-bold text-white mb-1">Custom Progressive Plan</h2>
-                                <p class="text-slate-400 text-sm">Adaptive schedule based on <span id="display-goal" class="font-bold text-indigo-300"></span>.</p>
+                                <p id="plan-subtitle" class="text-slate-400 text-sm">Adaptive schedule based on <span id="display-goal" class="font-bold text-indigo-300"></span>.</p>
                             </div>
-                            <div class="flex flex-wrap items-center space-x-3 bg-slate-900/50 p-2 rounded-lg border border-slate-700/50 shadow-inner">
+                            <div id="plan-duration-container" class="flex flex-wrap items-center space-x-3 bg-slate-900/50 p-2 rounded-lg border border-slate-700/50 shadow-inner">
                                 <span id="plan-duration" class="text-indigo-400 font-bold text-sm py-1 px-3"></span>
                             </div>
                         </div>
+
+                        <!-- NEW EMPTY STATE -->
+                        <div id="no-plan-msg" class="hidden text-center py-12 bg-slate-800/30 rounded-xl border border-slate-700/50 border-dashed mt-4">
+                            <svg class="w-16 h-16 text-indigo-500/50 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            <h3 class="text-xl font-bold text-white mb-2">No Active Plan</h3>
+                            <p class="text-slate-400 text-sm mb-6 max-w-md mx-auto">You haven't generated a fitness plan yet. Let our AI build a custom schedule based on your profile and goals.</p>
+                            <button type="button" id="btn-start-new-plan" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition active:scale-95">
+                                Start a New Plan
+                            </button>
+                        </div>
+
                         <div class="space-y-3 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar relative mt-4" id="weekly-schedule">
                             <!-- Populated dynamically -->
                         </div>
@@ -712,34 +723,60 @@
         async function loadCloudData() {
             if(!currentUserId || isLocalMode || typeof db === 'undefined' || !db) return;
             try {
+                let hasProfile = false;
+                let hasPlan = false;
+
                 // Fetch Profile
                 const profileRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'config', 'profile');
                 const pSnap = await getDoc(profileRef);
                 if(pSnap.exists()) {
                     const data = pSnap.data();
-                    document.getElementById('age').value = data.age || '';
+                    // FIXED: Load the correct new variables!
+                    document.getElementById('first-name').value = data.firstName || '';
+                    document.getElementById('last-name').value = data.lastName || '';
+                    document.getElementById('dob').value = data.dob || '';
+                    document.getElementById('height-ft').value = data.heightFt || '';
+                    document.getElementById('height-in').value = data.heightIn || '';
                     document.getElementById('weight').value = data.weight || '';
+                    document.getElementById('waist').value = data.waist || '';
                     document.getElementById('rhr').value = data.rhr || '';
                     document.getElementById('fitness').value = data.fitness || '';
+                    
+                    if (data.bmi) {
+                        const display = document.getElementById('bmi-display');
+                        display.textContent = data.bmi;
+                        display.classList.add('text-sky-300');
+                    }
+
                     selectedActivities = data.activities || [];
                     buildActivityCheckboxes();
                     updateGoalDropdowns();
                     document.getElementById('profile-status-text').innerHTML = `<span class="text-emerald-400">Profile synced from cloud.</span>`;
                     document.getElementById('generate-btn').disabled = false;
+                    hasProfile = true;
                 }
 
                 // Fetch Plan
                 const planRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'config', 'currentPlan');
                 const planSnap = await getDoc(planRef);
                 if(planSnap.exists()) {
-                    currentPlanData = planSnap.data().schedule || [];
-                    document.getElementById('goal').value = planSnap.data().primaryGoal || '';
-                    document.getElementById('display-goal').textContent = planSnap.data().primaryGoal || '';
+                    const pData = planSnap.data();
+                    currentPlanData = pData.schedule || [];
+                    document.getElementById('goal').value = pData.primaryGoal || '';
+                    document.getElementById('display-goal').textContent = pData.primaryGoal || '';
                     if (currentPlanData.length > 0) {
                         document.getElementById('start-date').value = currentPlanData[0].dateString;
                         document.getElementById('end-date').value = currentPlanData[currentPlanData.length-1].dateString;
-                        renderPlanToUI();
+                        hasPlan = true;
                     }
+                }
+
+                // SMART ROUTING: Determine where the user lands after login
+                if (!hasProfile) {
+                    switchTab('profile'); // Force to profile if empty
+                } else {
+                    renderPlanToUI(); // Will show empty state if no plan exists
+                    switchTab('dash'); // Send them to their dashboard home base
                 }
 
                 // Listen to Logs
@@ -799,6 +836,7 @@
         tabDashBtn.addEventListener('click', () => switchTab('dash'));
         tabAdminBtn.addEventListener('click', () => switchTab('admin'));
         document.getElementById('edit-profile-jump').addEventListener('click', () => switchTab('profile'));
+        document.getElementById('btn-start-new-plan').addEventListener('click', () => switchTab('plan'));
 
         function buildActivityCheckboxes() {
             let html = ALL_ACTIVITIES.map(act => `
@@ -1188,7 +1226,23 @@
 
         function renderPlanToUI() {
             const container = document.getElementById('weekly-schedule');
+            const emptyMsg = document.getElementById('no-plan-msg');
+            const subtitle = document.getElementById('plan-subtitle');
+            const durationBox = document.getElementById('plan-duration-container');
+
             container.innerHTML = '';
+            
+            if (currentPlanData.length === 0) {
+                emptyMsg.classList.remove('hidden');
+                subtitle.classList.add('hidden');
+                durationBox.classList.add('hidden');
+                return;
+            } else {
+                emptyMsg.classList.add('hidden');
+                subtitle.classList.remove('hidden');
+                durationBox.classList.remove('hidden');
+            }
+
             let currentWeek = 0;
 
             currentPlanData.forEach(day => {
