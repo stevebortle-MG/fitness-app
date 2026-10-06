@@ -861,18 +861,43 @@
         function updateGoalDropdowns() {
             if(selectedActivities.length > 0) {
                 goalSelect.disabled = false;
-                goalSelect.innerHTML = '<option value="" disabled selected>Select Primary Activity...</option>' + 
+                goalSelect.innerHTML = '<option value="" disabled selected>Select Primary Goal...</option>' + 
                     selectedActivities.map(act => `<option value="${act}">${act}</option>`).join('');
+                
+                secListContainer.classList.remove('opacity-50');
+                secListContainer.innerHTML = selectedActivities.map(act => `
+                    <label class="bg-slate-800 border border-slate-700 rounded p-1.5 text-xs flex items-center mb-1">
+                        <input type="checkbox" value="${act}" class="sec-checkbox mr-2 w-3 h-3">
+                        <span class="text-slate-200">${act}</span>
+                    </label>
+                `).join('');
             } else {
                 goalSelect.disabled = true;
                 goalSelect.innerHTML = '<option value="" disabled selected>Select activities first...</option>';
+                secListContainer.classList.add('opacity-50');
+                secListContainer.innerHTML = '<p class="text-sm text-slate-500 p-2 italic text-center mt-6">Select activities in Profile first...</p>';
             }
         }
 
-        // Logic for Goal Type Radios
+        // Logic for Goal Type Radios & Dates
         const goalRadios = document.querySelectorAll('input[name="goal-type"]');
         const endDateLabel = document.getElementById('end-date-label');
         const compWarning = document.getElementById('comp-warning');
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        
+        function autoFillGeneralEndDate() {
+            const goalType = document.querySelector('input[name="goal-type"]:checked').value;
+            // If "General" is selected and a start date is picked, auto-fill 12 weeks out
+            if (goalType === 'general' && startDateInput.value) {
+                const startDateObj = new Date(startDateInput.value + "T00:00:00");
+                startDateObj.setDate(startDateObj.getDate() + 84); // Add 84 days (12 weeks)
+                endDateInput.value = startDateObj.toISOString().split('T')[0];
+            }
+        }
+
+        // Listen for changes to the start date
+        startDateInput.addEventListener('change', autoFillGeneralEndDate);
         
         goalRadios.forEach(radio => {
             radio.addEventListener('change', (e) => {
@@ -885,9 +910,10 @@
                     endDateLabel.classList.remove('text-amber-400');
                     compWarning.classList.add('hidden');
                 } else {
-                    endDateLabel.textContent = 'Target End Date';
+                    endDateLabel.textContent = 'Target End Date (12 Weeks)';
                     endDateLabel.classList.remove('text-amber-400');
                     compWarning.classList.add('hidden');
+                    autoFillGeneralEndDate(); // Recalculate if they switch back to General
                 }
             });
         });
