@@ -1371,7 +1371,36 @@
             let currentWeek = 0;
 
             dataToRender.forEach(day => {
-        });
+                if (day.weekNum > currentWeek) {
+                    currentWeek = day.weekNum;
+                    container.innerHTML += `
+                        <div class="sticky top-0 bg-slate-800/95 backdrop-blur z-20 p-2 mt-4 mb-2 rounded border-b border-slate-600 flex justify-between shadow-md">
+                            <h3 class="text-sky-400 font-bold text-sm uppercase tracking-wide">Week ${currentWeek}</h3>
+                        </div>
+                    `;
+                }
+
+                let exPreview = '';
+                if (day.exercises && day.exercises.length > 0) {
+                    exPreview = '<div class="mt-2 pl-3 border-l-2 border-indigo-500/30 text-xs text-slate-300 space-y-1">';
+                    day.exercises.forEach(ex => {
+                        exPreview += `<div>• ${ex.exercise} <span class="text-slate-500 ml-1">(${ex.sets}x${ex.reps})</span></div>`;
+                    });
+                    exPreview += '</div>';
+                }
+
+                container.innerHTML += `
+                    <div class="flex flex-col sm:flex-row bg-slate-900/60 rounded-lg p-3 border-l-4 border-indigo-500 mb-2 shadow-sm">
+                        <div class="sm:w-32 font-bold text-indigo-300 text-sm mb-1 sm:mb-0 pt-0.5">${day.formattedDate}</div>
+                        <div class="flex-1">
+                            <div class="font-bold text-white text-base">${day.title}</div>
+                            <div class="text-slate-400 text-sm mt-1">${day.desc}</div>
+                            ${exPreview}
+                        </div>
+                    </div>
+                `;
+            });
+        }
 
         document.getElementById('add-exercise-btn').addEventListener('click', () => addExerciseRow());
 
