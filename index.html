@@ -1043,25 +1043,42 @@
             return { sets: 3, reps: '10' };
         }
 
-        function generateLiftingWorkout(dayTitle, weekNum) {
+        function generateLiftingWorkout(dayTitle, weekNum, avoidText = '') {
             const scheme = getProgressiveRepScheme(weekNum);
             let exercises = [];
+            
+            // Parse avoided exercises to filter them out securely
+            const avoidTerms = avoidText.toLowerCase().split(',').map(s => s.trim()).filter(s => s && s !== 'none');
+            
+            const isAvoided = (exName) => {
+                const lowerEx = exName.toLowerCase();
+                return avoidTerms.some(term => lowerEx.includes(term) || term.includes(lowerEx));
+            };
+
+            const getSafeExercise = (bodyPart, defaultEx) => {
+                if (!isAvoided(defaultEx)) return defaultEx;
+                // Find a safe alternative from the dictionary
+                const alts = exercisesDict[bodyPart] || [];
+                const safeAlt = alts.find(ex => !isAvoided(ex));
+                return safeAlt || defaultEx + " (Modified)"; 
+            };
+
             if (dayTitle.includes('Lower Body') || dayTitle.includes('Legs')) {
-                exercises.push({ bodyPart: 'Quads', exercise: 'Back Squats', sets: scheme.sets, reps: scheme.reps, weight: '' });
-                exercises.push({ bodyPart: 'Hamstrings', exercise: 'Romanian Deadlift (RDL)', sets: 3, reps: '10', weight: '' });
-                exercises.push({ bodyPart: 'Calves', exercise: 'Standing Calf Raise', sets: 4, reps: '15', weight: '' });
+                exercises.push({ bodyPart: 'Quads', exercise: getSafeExercise('Quads', 'Back Squats'), sets: scheme.sets, reps: scheme.reps, weight: '' });
+                exercises.push({ bodyPart: 'Hamstrings', exercise: getSafeExercise('Hamstrings', 'Romanian Deadlift (RDL)'), sets: 3, reps: '10', weight: '' });
+                exercises.push({ bodyPart: 'Calves', exercise: getSafeExercise('Calves', 'Standing Calf Raise'), sets: 4, reps: '15', weight: '' });
             } else if (dayTitle.includes('Upper Body Push')) {
-                exercises.push({ bodyPart: 'Chest', exercise: 'Bench Press (Barbell)', sets: scheme.sets, reps: scheme.reps, weight: '' });
-                exercises.push({ bodyPart: 'Shoulders', exercise: 'Overhead Press (Dumbbell)', sets: 3, reps: '10', weight: '' });
-                exercises.push({ bodyPart: 'Triceps', exercise: 'Triceps Pushdown', sets: 3, reps: '12', weight: '' });
+                exercises.push({ bodyPart: 'Chest', exercise: getSafeExercise('Chest', 'Bench Press (Barbell)'), sets: scheme.sets, reps: scheme.reps, weight: '' });
+                exercises.push({ bodyPart: 'Shoulders', exercise: getSafeExercise('Shoulders', 'Overhead Press (Dumbbell)'), sets: 3, reps: '10', weight: '' });
+                exercises.push({ bodyPart: 'Triceps', exercise: getSafeExercise('Triceps', 'Triceps Pushdown'), sets: 3, reps: '12', weight: '' });
             } else if (dayTitle.includes('Upper Body Pull')) {
-                exercises.push({ bodyPart: 'Back', exercise: 'Pull-ups', sets: 3, reps: 'Max', weight: '0' });
-                exercises.push({ bodyPart: 'Back', exercise: 'Barbell Row', sets: scheme.sets, reps: scheme.reps, weight: '' });
-                exercises.push({ bodyPart: 'Biceps', exercise: 'Dumbbell Curl', sets: 3, reps: '12', weight: '' });
+                exercises.push({ bodyPart: 'Back', exercise: getSafeExercise('Back', 'Pull-ups'), sets: 3, reps: 'Max', weight: '0' });
+                exercises.push({ bodyPart: 'Back', exercise: getSafeExercise('Back', 'Barbell Row'), sets: scheme.sets, reps: scheme.reps, weight: '' });
+                exercises.push({ bodyPart: 'Biceps', exercise: getSafeExercise('Biceps', 'Dumbbell Curl'), sets: 3, reps: '12', weight: '' });
             } else if (dayTitle.includes('Full Body')) {
-                exercises.push({ bodyPart: 'Quads', exercise: 'Goblet Squats', sets: 3, reps: '12', weight: '' });
-                exercises.push({ bodyPart: 'Chest', exercise: 'Push-ups', sets: 3, reps: 'Max', weight: '0' });
-                exercises.push({ bodyPart: 'Core / Abs', exercise: 'Plank', sets: 3, reps: '60s', weight: '0' });
+                exercises.push({ bodyPart: 'Quads', exercise: getSafeExercise('Quads', 'Goblet Squats'), sets: 3, reps: '12', weight: '' });
+                exercises.push({ bodyPart: 'Chest', exercise: getSafeExercise('Chest', 'Push-ups'), sets: 3, reps: 'Max', weight: '0' });
+                exercises.push({ bodyPart: 'Core / Abs', exercise: getSafeExercise('Core / Abs', 'Plank'), sets: 3, reps: '60s', weight: '0' });
             }
             return exercises;
         }
@@ -1149,8 +1166,10 @@
                     }
                 };
 
-                const apiKey = ""; 
-                if (!apiKey) throw new Error("No AI key provided, safely falling back to standard plan logic.");
+                // PASTE YOUR KEY BETWEEN THE QUOTES BELOW:
+                const apiKey = "YOUR_GEMINI_API_KEY_HERE"; 
+                
+                if (!apiKey || apiKey === "YOUR_GEMINI_API_KEY_HERE") throw new Error("No AI key provided, safely falling back to standard plan logic.");
 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
                 
@@ -1208,7 +1227,7 @@
                     const templateIndex = dayIndex === 0 ? 6 : dayIndex - 1; 
                     const workout = template[templateIndex];
                     const isLifting = workout.title.includes('Body') || workout.title.includes('Legs');
-                    const generatedExercises = isLifting ? generateLiftingWorkout(workout.title, weekNum) : [];
+                    const generatedExercises = isLifting ? generateLiftingWorkout(workout.title, weekNum, avoid) : [];
 
                     currentPlanData.push({
                         dateString: isoStr,
