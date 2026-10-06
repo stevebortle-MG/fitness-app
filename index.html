@@ -482,7 +482,7 @@
         // Data Definitions
         const ALL_ACTIVITIES = [
             'Running', 'Walking', 'Elliptical', 'Swimming', 'Cycling', 'Rowing', 'Stair Climber', 'Jump Rope',
-            'Weight Lifting', 'Power Lifting', 'Bodyweight / Calisthenics', 'CrossFit', 'Warrior Games', 'Lose Weight (General)', 'Body Recomposition'
+            'Weight Lifting', 'Power Lifting', 'Bodyweight / Calisthenics', 'CrossFit'
         ];
 
         const exercisesDict = {
@@ -741,20 +741,60 @@
         document.getElementById('edit-profile-jump').addEventListener('click', () => switchTab('profile'));
 
         function buildActivityCheckboxes() {
-            actListContainer.innerHTML = ALL_ACTIVITIES.map(act => `
+            let html = ALL_ACTIVITIES.map(act => `
                 <label class="bg-slate-800 border border-slate-700 hover:border-sky-500 rounded p-2 text-sm flex items-center mb-1">
                     <input type="checkbox" value="${act}" class="act-checkbox mr-2 w-4 h-4" ${selectedActivities.includes(act) ? 'checked' : ''}>
                     <span class="text-slate-200">${act}</span>
                 </label>
             `).join('');
 
+            const customActs = selectedActivities.filter(a => !ALL_ACTIVITIES.includes(a));
+            const isOtherChecked = customActs.length > 0;
+            const otherVal = isOtherChecked ? customActs[0] : '';
+
+            html += `
+                <label class="bg-slate-800 border border-slate-700 hover:border-sky-500 rounded p-2 text-sm flex flex-col items-start mb-1 col-span-full md:col-span-3 transition-all duration-300">
+                    <div class="flex items-center w-full">
+                        <input type="checkbox" id="other-act-cb" value="Other" class="mr-2 w-4 h-4" ${isOtherChecked ? 'checked' : ''}>
+                        <span class="text-sky-300 font-bold">Other (Specify)</span>
+                    </div>
+                    <input type="text" id="other-act-text" class="${isOtherChecked ? '' : 'hidden'} w-full mt-3 bg-slate-900 border border-sky-600 rounded-lg px-4 py-2.5 text-white text-sm focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-500 transition-all shadow-inner" placeholder="e.g. Martial Arts, Rock Climbing, Yoga..." value="${otherVal}">
+                </label>
+            `;
+            
+            actListContainer.innerHTML = html;
+
+            const updateActivities = () => {
+                const checked = Array.from(actListContainer.querySelectorAll('.act-checkbox:checked')).map(c => c.value);
+                const otherCb = document.getElementById('other-act-cb');
+                const otherText = document.getElementById('other-act-text');
+                
+                if (otherCb && otherCb.checked) {
+                    otherText.classList.remove('hidden');
+                    if (otherText.value.trim() !== '') {
+                        checked.push(otherText.value.trim());
+                    }
+                } else if (otherCb && !otherCb.checked) {
+                    otherText.classList.add('hidden');
+                }
+                
+                selectedActivities = checked;
+                updateGoalDropdowns();
+            };
+
             actListContainer.querySelectorAll('.act-checkbox').forEach(cb => {
-                cb.addEventListener('change', () => {
-                    const checked = actListContainer.querySelectorAll('.act-checkbox:checked');
-                    selectedActivities = Array.from(checked).map(c => c.value);
-                    updateGoalDropdowns();
-                });
+                cb.addEventListener('change', updateActivities);
             });
+            
+            const otherCb = document.getElementById('other-act-cb');
+            if(otherCb) otherCb.addEventListener('change', updateActivities);
+            
+            const otherText = document.getElementById('other-act-text');
+            if(otherText) {
+                otherText.addEventListener('input', () => {
+                    if(otherCb.checked) updateActivities();
+                });
+            }
         }
         buildActivityCheckboxes(); 
 
@@ -889,37 +929,120 @@
             document.getElementById('display-goal').textContent = primaryGoal;
             document.getElementById('plan-duration').textContent = `${daysDiff} Days`;
 
-            const template = [
-                { title: 'Heavy Lower Body', desc: 'Squats, deadlifts, and posterior chain focus.' },
-                { title: 'Upper Body Push', desc: 'Bench press, overhead press, triceps.' },
-                { title: 'Active Recovery Cardio', desc: '30 mins easy Zone 2 cardio.' },
-                { title: 'Upper Body Pull', desc: 'Rows, pull-ups, biceps.' },
-                { title: 'Legs Hypertrophy', desc: 'Higher rep ranges for legs.' },
-                { title: 'Full Body Core', desc: 'Functional movements and core.' },
-                { title: 'Rest', desc: 'Complete physical rest.' }
-            ];
+            const genBtn = document.getElementById('generate-btn');
+            const originalBtnText = genBtn.innerHTML;
+            genBtn.innerHTML = '<div class="loader inline-block align-middle mr-2 w-4 h-4 border-2 border-t-white"></div> Generating AI Plan...';
+            genBtn.disabled = true;
 
             currentPlanData = [];
-            for (let i = 0; i < daysDiff; i++) {
-                const currentDate = new Date(startDate);
-                currentDate.setDate(startDate.getDate() + i);
-                const isoStr = currentDate.toISOString().split('T')[0];
-                const dayIndex = currentDate.getDay(); 
-                const weekNum = Math.floor(i / 7) + 1;
-                
-                const templateIndex = dayIndex === 0 ? 6 : dayIndex - 1; 
-                const workout = template[templateIndex];
-                const isLifting = workout.title.includes('Body') || workout.title.includes('Legs');
-                const generatedExercises = isLifting ? generateLiftingWorkout(workout.title, weekNum) : [];
+            
+            try {
+                // Call Gemini AI to dynamically generate the workout plan based on the input text/goal
+                const trainingDays = document.getElementById('training-days').value || 3;
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [{ text: `Create a ${daysDiff}-day progressive fitness plan. The user's primary goal is: ${primaryGoal}. They train ${trainingDays} days a week. Make sure to generate exactly ${daysDiff} days of data.` }]
+                    }],
+                    systemInstruction: {
+                        parts: [{ text: "You are an expert fitness coach. Return ONLY a JSON array. Each element must represent a day and have: 'title' (string), 'desc' (string), and 'exercises' (array). Each exercise must have 'bodyPart' (string), 'exercise' (string), 'sets' (number), 'reps' (string), and 'weight' (string, use 'BW' for bodyweight or '0' if unknown). If it is a rest day, the 'exercises' array should be empty." }]
+                    },
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    title: { type: "STRING" },
+                                    desc: { type: "STRING" },
+                                    exercises: {
+                                        type: "ARRAY",
+                                        items: {
+                                            type: "OBJECT",
+                                            properties: {
+                                                bodyPart: { type: "STRING" },
+                                                exercise: { type: "STRING" },
+                                                sets: { type: "INTEGER" },
+                                                reps: { type: "STRING" },
+                                                weight: { type: "STRING" }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
 
-                currentPlanData.push({
-                    dateString: isoStr,
-                    formattedDate: currentDate.toLocaleDateString(undefined, {weekday: 'short', month: 'short', day: 'numeric'}),
-                    weekNum: weekNum,
-                    title: workout.title,
-                    desc: workout.desc,
-                    exercises: generatedExercises
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 });
+                
+                const result = await response.json();
+                let aiPlan = [];
+                if (result.candidates && result.candidates[0].content.parts[0].text) {
+                    aiPlan = JSON.parse(result.candidates[0].content.parts[0].text);
+                }
+
+                // Map AI generated days to our dates
+                for (let i = 0; i < daysDiff; i++) {
+                    const currentDate = new Date(startDate);
+                    currentDate.setDate(startDate.getDate() + i);
+                    const isoStr = currentDate.toISOString().split('T')[0];
+                    const weekNum = Math.floor(i / 7) + 1;
+                    
+                    const dayData = aiPlan[i] || { title: 'Rest', desc: 'Active recovery or rest.', exercises: [] };
+
+                    currentPlanData.push({
+                        dateString: isoStr,
+                        formattedDate: currentDate.toLocaleDateString(undefined, {weekday: 'short', month: 'short', day: 'numeric'}),
+                        weekNum: weekNum,
+                        title: dayData.title,
+                        desc: dayData.desc,
+                        exercises: dayData.exercises || []
+                    });
+                }
+
+            } catch (aiError) {
+                console.error("AI Generation failed, falling back to template:", aiError);
+                // Fallback to static template if AI fails
+                const template = [
+                    { title: 'Heavy Lower Body', desc: 'Squats, deadlifts, and posterior chain focus.' },
+                    { title: 'Upper Body Push', desc: 'Bench press, overhead press, triceps.' },
+                    { title: 'Active Recovery Cardio', desc: '30 mins easy Zone 2 cardio.' },
+                    { title: 'Upper Body Pull', desc: 'Rows, pull-ups, biceps.' },
+                    { title: 'Legs Hypertrophy', desc: 'Higher rep ranges for legs.' },
+                    { title: 'Full Body Core', desc: 'Functional movements and core.' },
+                    { title: 'Rest', desc: 'Complete physical rest.' }
+                ];
+
+                for (let i = 0; i < daysDiff; i++) {
+                    const currentDate = new Date(startDate);
+                    currentDate.setDate(startDate.getDate() + i);
+                    const isoStr = currentDate.toISOString().split('T')[0];
+                    const dayIndex = currentDate.getDay(); 
+                    const weekNum = Math.floor(i / 7) + 1;
+                    
+                    const templateIndex = dayIndex === 0 ? 6 : dayIndex - 1; 
+                    const workout = workout = template[templateIndex];
+                    const isLifting = workout.title.includes('Body') || workout.title.includes('Legs');
+                    const generatedExercises = isLifting ? generateLiftingWorkout(workout.title, weekNum) : [];
+
+                    currentPlanData.push({
+                        dateString: isoStr,
+                        formattedDate: currentDate.toLocaleDateString(undefined, {weekday: 'short', month: 'short', day: 'numeric'}),
+                        weekNum: weekNum,
+                        title: workout.title,
+                        desc: workout.desc,
+                        exercises: generatedExercises
+                    });
+                }
             }
 
             if(currentUserId && !isLocalMode && typeof db !== 'undefined' && db) {
@@ -930,6 +1053,9 @@
             }
 
             renderPlanToUI();
+            genBtn.innerHTML = originalBtnText;
+            genBtn.disabled = false;
+            
             switchTab('dash');
             document.getElementById('plan-view').classList.remove('hidden');
             document.getElementById('log-view').classList.add('hidden');
