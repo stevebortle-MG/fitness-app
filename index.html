@@ -159,6 +159,22 @@
                             <option value="5">5 Days (Advanced)</option>
                             <option value="6">6 Days (Elite)</option>
                         </select>
+
+                        <!-- Top 10 Gym Splits Integrated Choice -->
+                        <label class="block text-sm font-bold text-amber-400 mt-2"><i class="fa-solid fa-dumbbell mr-1"></i> Preferred Gym Split Strategy</label>
+                        <select id="gym-split-choice" class="input-field border-amber-500">
+                            <option value="AI Auto-Select">AI Auto-Select (Best match for goals)</option>
+                            <option value="Push / Pull / Legs (PPL)">1. Push / Pull / Legs (PPL)</option>
+                            <option value="Upper / Lower Split">2. Upper / Lower Split</option>
+                            <option value="Full Body Routine">3. Full Body Routine</option>
+                            <option value="Arnold Split (Chest/Back, Shoulders/Arms, Legs)">4. Arnold Split</option>
+                            <option value="Bro Split (Body Part Split)">5. Bro Split (Body Part Split)</option>
+                            <option value="Upper / Lower / Push / Pull / Legs Hybrid">6. Upper / Lower / PPL Hybrid</option>
+                            <option value="PHUL (Power Hypertrophy Upper Lower)">7. PHUL (Power & Hypertrophy)</option>
+                            <option value="PH3 (Power, Hypertrophy, Peak)">8. PH3 (Advanced Power-Builder)</option>
+                            <option value="Upper / Lower / Full Body">9. Upper / Lower / Full Body</option>
+                            <option value="Antagonistic Super-Set Split">10. Antagonistic Super-Set Split</option>
+                        </select>
                     </div>
 
                     <!-- Card 2: Timeline -->
@@ -348,10 +364,8 @@
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         // ==========================================
-        // 1. CONFIGURATION (PASTE YOUR KEYS HERE)
+        // 1. CONFIGURATION
         // ==========================================
-        
-        // --- PUT YOUR FIREBASE CODE BLOCK HERE ---
         const firebaseConfig = {
             apiKey: "AIzaSyBZ6z04CD02lub16COOPGY59jz9cmVmQdg", 
             authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -361,10 +375,7 @@
             appId: "1:123456:web:abcdef"
         };
 
-        // --- PUT YOUR UNIQUE USER ID HERE ---
         const ADMIN_UID = 'YOUR_ADMIN_USER_UID_HERE'; 
-
-        // --- PUT YOUR GOOGLE AI STUDIO KEY HERE ---
         const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY_HERE';
 
         // ==========================================
@@ -390,7 +401,6 @@
         // ==========================================
         // 3. AUTHENTICATION & NAVIGATION
         // ==========================================
-        
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
@@ -468,7 +478,6 @@
         // ==========================================
         // 4. USER PROFILE & METRICS
         // ==========================================
-        
         async function loadUserProfile() {
             try {
                 const docSnap = await getDoc(doc(db, "users", currentUser.uid));
@@ -539,7 +548,6 @@
         // ==========================================
         // 5. PLAN SETUP FORM LOGIC
         // ==========================================
-
         document.getElementById('primary-activity').addEventListener('change', (e) => {
             const otherBox = document.getElementById('other-activity-container');
             if(e.target.value === 'Other') {
@@ -588,7 +596,6 @@
         // ==========================================
         // 6. PLAN GENERATION & PREVIEW
         // ==========================================
-
         document.getElementById('generate-plan-btn').addEventListener('click', async () => {
             const statusMsg = document.getElementById('generator-status');
             statusMsg.textContent = "Analyzing profile and connecting to AI...";
@@ -598,6 +605,7 @@
             let activity = document.getElementById('primary-activity').value;
             if(activity === 'Other') activity = document.getElementById('other-activity-text').value;
             
+            const selectedSplit = document.getElementById('gym-split-choice').value;
             const goalType = document.querySelector('input[name="goal_type"]:checked').value;
             const avoidText = document.getElementById('avoid-exercises').value;
             const cardioText = document.getElementById('cardio-pref').value;
@@ -610,6 +618,7 @@
                 Act as an elite personal trainer. Create a JSON format workout plan for a ${age} yr old weighing ${weight}lbs.
                 Primary Focus: ${checkedFocus.join(', ')}. Activity: ${activity}.
                 Training Days per week: ${daysPerWeek}. Goal Type: ${goalType}.
+                Preferred Training Split: ${selectedSplit}.
                 Cardio Preference: ${cardioText}.
                 
                 *** CRITICAL SAFETY VIOLATION *** 
@@ -619,7 +628,7 @@
                 
                 Respond ONLY with a valid JSON object matching this exact structure:
                 {
-                  "planName": "Custom ${activity} Plan",
+                  "planName": "Custom ${activity} Plan (${selectedSplit})",
                   "weeks": [
                     {
                       "weekNumber": 1,
@@ -667,23 +676,23 @@
 
         function generateFallbackPlan(activity, focus, avoidText, days) {
             const avoids = avoidText.toLowerCase();
-            
             const avoidList = avoids.replace(/and/g, ',').split(',').map(s => s.trim());
-            
             const hasAvoided = (keyword) => avoidList.some(item => item.includes(keyword));
 
             const safeSquat = hasAvoided('squat') ? 'Leg Press' : 'Barbell Squat';
             const safeDeadlift = hasAvoided('deadlift') ? 'Glute Ham Raise' : 'Deadlift';
             const safePress = hasAvoided('press') ? 'Machine Chest Flyes' : 'Bench Press';
             
+            const selectedSplit = document.getElementById('gym-split-choice') ? document.getElementById('gym-split-choice').value : "Standard Split";
+
             return {
-                planName: `Fallback: ${activity} Module`,
+                planName: `Fallback: ${activity} Module (${selectedSplit})`,
                 weeks: [
                     {
                         weekNumber: 1,
                         days: [
-                            { dayName: "Day 1", focus: "Lower Body", exercises: [`${safeSquat} 3x8`, `${safeDeadlift} 3x5`, "Leg Curls 3x12"] },
-                            { dayName: "Day 2", focus: "Upper Body", exercises: [`${safePress} 3x8`, "Pullups 3x8", "Dumbbell Lateral Raises 3x10"] }
+                            { dayName: "Day 1", focus: `${selectedSplit} - Session A`, exercises: [`${safeSquat} 3x8`, `${safeDeadlift} 3x5`, "Leg Curls 3x12"] },
+                            { dayName: "Day 2", focus: `${selectedSplit} - Session B`, exercises: [`${safePress} 3x8`, "Pullups 3x8", "Dumbbell Lateral Raises 3x10"] }
                         ]
                     }
                 ]
@@ -739,7 +748,6 @@
         // ==========================================
         // 7. RENDER DASHBOARD & ADMIN AREA
         // ==========================================
-
         async function loadUserPlan() {
             try {
                 const docSnap = await getDoc(doc(db, "plans", currentUser.uid));
