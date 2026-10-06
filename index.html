@@ -526,10 +526,10 @@
         };
 
         //  ADMIN CONFIGURATION
-        const ADMIN_UID = 'HCar0CbZtdUxBEagfZXnFlqCKPi1'; // Replace after creating your admin account
+        const ADMIN_UID = 'YOUR_ADMIN_USER_UID_HERE'; // Replace after creating your admin account
         // ==========================================
 
-        const appId = 'AQ.Ab8RN6Iqc-Rqc5AbWLR1mS8y7s9WaXP5Cpv8fajVBClOypE1Jw';
+        const appId = 'dynamic-fitness-app';
         
         let app, auth, db;
         let isLocalMode = true; 
@@ -1047,8 +1047,8 @@
             const scheme = getProgressiveRepScheme(weekNum);
             let exercises = [];
             
-            // Parse avoided exercises to filter them out securely
-            const avoidTerms = avoidText.toLowerCase().split(',').map(s => s.trim()).filter(s => s && s !== 'none');
+            // Smarter parsing: remove words like "avoid", split by spaces/commas, grab keywords
+            const avoidTerms = avoidText.toLowerCase().replace(/avoid/g, '').split(/[,\s]+/).map(s => s.trim()).filter(s => s.length > 3 && s !== 'none');
             
             const isAvoided = (exName) => {
                 const lowerEx = exName.toLowerCase();
@@ -1116,9 +1116,12 @@
             Their main physical activity is: ${primaryGoal}.
             Equipment available to them: ${equipment}.
             Cardio preferences: ${cardio}.
-            Exercises they must strictly avoid: ${avoid}.
             If their focus contains conflicting goals (like Bulking and Improving Cardio), create a balanced hybrid protocol. 
             Ensure exactly ${daysDiff} days of data are returned.`;
+
+            if (avoid && avoid.toLowerCase() !== 'none') {
+                promptInstruction += `\n\nCRITICAL MEDICAL/PREFERENCE AVOIDANCE: You MUST NOT program the following exercises or ANY variations of them: "${avoid}". If a standard program requires these, you MUST substitute them with safe alternatives for the same muscle groups. Failure to avoid these exercises is a strict safety violation.`;
+            }
 
             if (goalType === 'competition') {
                 promptInstruction += ` IMPORTANT INSTRUCTION: The user is training for a competition on the final day of this plan. You MUST explicitly program a deload / taper-off period in the final 5-7 days leading up to the end date to shed fatigue.`;
