@@ -892,17 +892,29 @@
             });
         });
 
-        document.getElementById('save-profile-btn').addEventListener('click', async () => {
-            const age = document.getElementById('age').value;
-                }
+        function calculateBMI() {
+            const w = parseFloat(document.getElementById('weight').value);
+            const ft = parseFloat(document.getElementById('height-ft').value);
+            const inc = parseFloat(document.getElementById('height-in').value) || 0;
+            
+            if (w > 0 && ft > 0) {
+                const totalInches = (ft * 12) + inc;
+                const bmi = (w / (totalInches * totalInches)) * 703;
+                const display = document.getElementById('bmi-display');
+                display.textContent = bmi.toFixed(1);
+                display.classList.add('text-sky-300');
+                display.classList.remove('text-slate-400');
+                return;
             }
-            document.getElementById('bmi-display').textContent = '--';
-            document.getElementById('bmi-display').classList.remove('text-sky-300');
-            document.getElementById('bmi-display').classList.add('text-slate-400');
+            const display = document.getElementById('bmi-display');
+            display.textContent = '--';
+            display.classList.remove('text-sky-300');
+            display.classList.add('text-slate-400');
         }
 
         ['weight', 'height-ft', 'height-in'].forEach(id => {
-            document.getElementById(id).addEventListener('input', calculateBMI);
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', calculateBMI);
         });
 
         document.getElementById('save-profile-btn').addEventListener('click', async () => {
