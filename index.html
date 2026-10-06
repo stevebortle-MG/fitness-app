@@ -193,19 +193,7 @@
                                     <option value="advanced">Advanced</option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Training Days/Wk</label>
-                                <select id="training-days" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white text-sm focus:border-sky-500 appearance-none shadow-inner">
-                                    <option value="" disabled selected>Select...</option>
-                                    <option value="1">1 Day</option>
-                                    <option value="2">2 Days</option>
-                                    <option value="3">3 Days</option>
-                                    <option value="4">4 Days</option>
-                                    <option value="5">5 Days</option>
-                                    <option value="6">6 Days</option>
-                                    <option value="7">7 Days</option>
-                                </select>
-                            </div>
+                            <!-- Training Days moved to Plan Setup tab -->
                         </div>
                         
                         <div class="bg-indigo-900/30 border border-indigo-500/30 rounded-lg p-3 text-xs text-indigo-300 flex items-start mt-2">
@@ -233,7 +221,7 @@
             </div>
 
             <div id="form-container" class="hidden card-bg rounded-2xl p-6 md:p-8 shadow-2xl transition-all duration-500 fade-in">
-                <form id="training-form" class="space-y-8">
+                <form id="training-form" class="space-y-6">
                     <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 flex items-center justify-between shadow-inner">
                         <div>
                             <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Profile Sync</h3>
@@ -242,39 +230,118 @@
                         <button type="button" id="edit-profile-jump" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-md text-white transition font-semibold shadow-sm">Edit Profile</button>
                     </div>
 
-                    <div>
-                        <h2 class="text-xl font-semibold mb-4 text-indigo-400 border-b border-slate-700 pb-2">Training Block Goals</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- CARD 1: Objective -->
+                    <div class="bg-slate-800/30 p-5 rounded-xl border border-slate-700/50 shadow-inner">
+                        <h2 class="text-lg font-semibold mb-4 text-indigo-400 border-b border-slate-700/50 pb-2 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            1. Training Objective
+                        </h2>
+                        
+                        <div class="mb-5">
+                            <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Overall Fitness Focus (Select all that apply)</label>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 custom-checkbox-list chk-indigo" id="focus-container">
+                                <label class="bg-slate-900 border border-slate-600 rounded p-2 text-sm"><input type="checkbox" value="Bulking / Muscle Gain" class="focus-cb"> <span class="text-slate-200">Bulking / Muscle</span></label>
+                                <label class="bg-slate-900 border border-slate-600 rounded p-2 text-sm"><input type="checkbox" value="Losing Weight / Fat Loss" class="focus-cb"> <span class="text-slate-200">Fat Loss</span></label>
+                                <label class="bg-slate-900 border border-slate-600 rounded p-2 text-sm"><input type="checkbox" value="Body Recomposition" class="focus-cb"> <span class="text-slate-200">Recomposition</span></label>
+                                <label class="bg-slate-900 border border-slate-600 rounded p-2 text-sm"><input type="checkbox" value="Getting Stronger / Power" class="focus-cb"> <span class="text-slate-200">Getting Stronger</span></label>
+                                <label class="bg-slate-900 border border-slate-600 rounded p-2 text-sm"><input type="checkbox" value="Improving Cardio / Endurance" class="focus-cb"> <span class="text-slate-200">Improving Cardio</span></label>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-sm font-bold text-slate-300 mb-2 uppercase">Primary Fitness Goal</label>
-                                <select id="goal" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 appearance-none disabled:opacity-50 shadow-inner" disabled>
+                                <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Primary Activity</label>
+                                <select id="goal" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 appearance-none disabled:opacity-50 shadow-inner" disabled>
                                     <option value="" disabled selected>Select activities in Profile first...</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-bold text-slate-300 mb-2 uppercase">Secondary Goal(s)</label>
-                                <div class="bg-slate-900 border border-slate-600 rounded-lg h-32 overflow-y-auto custom-scrollbar p-2 custom-checkbox-list chk-sky shadow-inner opacity-50 transition-opacity" id="secondary-list-container">
-                                    <p class="text-sm text-slate-500 p-2 italic text-center mt-6">Select activities in Profile first...</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                            <div>
-                                <label class="block text-sm font-bold text-slate-300 mb-2 uppercase">Plan Start Date</label>
-                                <input type="date" id="start-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:border-indigo-500 shadow-inner [color-scheme:dark]">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-bold text-slate-300 mb-2 uppercase">Target End Date</label>
-                                <input type="date" id="end-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:border-indigo-500 shadow-inner [color-scheme:dark]">
+                                <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Training Days / Week</label>
+                                <select id="training-days" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 appearance-none shadow-inner">
+                                    <option value="1">1 Day</option>
+                                    <option value="2">2 Days</option>
+                                    <option value="3" selected>3 Days</option>
+                                    <option value="4">4 Days</option>
+                                    <option value="5">5 Days</option>
+                                    <option value="6">6 Days</option>
+                                    <option value="7">7 Days</option>
+                                </select>
                             </div>
                         </div>
                     </div>
 
-                    <div class="pt-4 flex flex-col sm:flex-row justify-between items-center border-t border-slate-700/50 mt-8 pt-6 gap-4">
+                    <!-- CARD 2: Timeline -->
+                    <div class="bg-slate-800/30 p-5 rounded-xl border border-slate-700/50 shadow-inner">
+                        <h2 class="text-lg font-semibold mb-4 text-sky-400 border-b border-slate-700/50 pb-2 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            2. Timeline & Event
+                        </h2>
+                        
+                        <div class="mb-5">
+                            <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">What is the end goal of this block?</label>
+                            <div class="flex flex-wrap gap-4">
+                                <label class="flex items-center space-x-2 cursor-pointer group">
+                                    <input type="radio" name="goal-type" value="general" checked class="w-4 h-4 text-sky-500 bg-slate-900 border-slate-600 focus:ring-sky-500">
+                                    <span class="text-slate-300 text-sm group-hover:text-white transition">General Training / Block</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer group">
+                                    <input type="radio" name="goal-type" value="event" class="w-4 h-4 text-sky-500 bg-slate-900 border-slate-600 focus:ring-sky-500">
+                                    <span class="text-slate-300 text-sm group-hover:text-white transition">Specific Event (e.g. Wedding, Vacation)</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer group">
+                                    <input type="radio" name="goal-type" value="competition" class="w-4 h-4 text-sky-500 bg-slate-900 border-slate-600 focus:ring-sky-500">
+                                    <span class="text-slate-300 text-sm group-hover:text-white transition font-bold text-amber-400">Competition / Race</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Start Date</label>
+                                <input type="date" id="start-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-sky-500 shadow-inner [color-scheme:dark]">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-2 uppercase" id="end-date-label">Target End Date</label>
+                                <input type="date" id="end-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-sky-500 shadow-inner [color-scheme:dark]">
+                                <p id="comp-warning" class="hidden text-[10px] text-amber-400 mt-1 font-semibold">*AI will automatically schedule a deload/taper period leading up to this date.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 3: Preferences -->
+                    <div class="bg-slate-800/30 p-5 rounded-xl border border-slate-700/50 shadow-inner">
+                        <h2 class="text-lg font-semibold mb-4 text-fuchsia-400 border-b border-slate-700/50 pb-2 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                            3. Preferences & Limitations
+                        </h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Available Equipment</label>
+                                <div class="grid grid-cols-2 gap-2 custom-checkbox-list chk-fuchsia">
+                                    <label class="bg-slate-900 border border-slate-600 rounded p-2 text-sm"><input type="checkbox" value="Free Weights (Barbells/Dumbbells)" class="equip-cb" checked> <span class="text-slate-200">Free Weights</span></label>
+                                    <label class="bg-slate-900 border border-slate-600 rounded p-2 text-sm"><input type="checkbox" value="Machines" class="equip-cb" checked> <span class="text-slate-200">Machines</span></label>
+                                    <label class="bg-slate-900 border border-slate-600 rounded p-2 text-sm"><input type="checkbox" value="Cables" class="equip-cb" checked> <span class="text-slate-200">Cables</span></label>
+                                    <label class="bg-slate-900 border border-slate-600 rounded p-2 text-sm"><input type="checkbox" value="Bodyweight Only" class="equip-cb"> <span class="text-slate-200">Bodyweight Only</span></label>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Cardio Preferences</label>
+                                    <input type="text" id="cardio-prefs" placeholder="e.g. Sprints, Rucking, Zone 2 cycling..." class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white text-sm focus:border-fuchsia-500 shadow-inner">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-amber-500/80 mb-1 uppercase">Exercises to strictly AVOID</label>
+                                    <input type="text" id="avoid-exercises" placeholder="e.g. Deadlifts, Overhead Press, High Impact..." class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white text-sm focus:border-amber-500 shadow-inner">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 flex flex-col sm:flex-row justify-between items-center border-t border-slate-700/50 mt-8 pt-6 gap-4">
                         <span class="text-xs text-slate-500 sm:w-2/3 text-center sm:text-left">By generating this plan, you acknowledge consulting a physician before strenuous activity.</span>
                         <button type="button" id="generate-btn" class="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg transform transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                            Generate Progressive Plan
+                            Generate AI Plan
                         </button>
                     </div>
                 </form>
@@ -650,20 +717,13 @@
                 const pSnap = await getDoc(profileRef);
                 if(pSnap.exists()) {
                     const data = pSnap.data();
-                    document.getElementById('first-name').value = data.firstName || '';
-                    document.getElementById('last-name').value = data.lastName || '';
-                    document.getElementById('dob').value = data.dob || '';
-                    document.getElementById('height-ft').value = data.heightFt || '';
-                    document.getElementById('height-in').value = data.heightIn || '';
-                    document.getElementById('waist').value = data.waist || '';
+                    document.getElementById('age').value = data.age || '';
                     document.getElementById('weight').value = data.weight || '';
                     document.getElementById('rhr').value = data.rhr || '';
                     document.getElementById('fitness').value = data.fitness || '';
-                    document.getElementById('training-days').value = data.trainingDays || '';
                     selectedActivities = data.activities || [];
                     buildActivityCheckboxes();
                     updateGoalDropdowns();
-                    calculateBMI(); // Update BMI display based on loaded data
                     document.getElementById('profile-status-text').innerHTML = `<span class="text-emerald-400">Profile synced from cloud.</span>`;
                     document.getElementById('generate-btn').disabled = false;
                 }
@@ -801,39 +861,39 @@
         function updateGoalDropdowns() {
             if(selectedActivities.length > 0) {
                 goalSelect.disabled = false;
-                goalSelect.innerHTML = '<option value="" disabled selected>Select Primary Goal...</option>' + 
+                goalSelect.innerHTML = '<option value="" disabled selected>Select Primary Activity...</option>' + 
                     selectedActivities.map(act => `<option value="${act}">${act}</option>`).join('');
-                    
-                secListContainer.classList.remove('opacity-50');
-                secListContainer.innerHTML = selectedActivities.map(act => `
-                    <label class="bg-slate-800 border border-slate-700 rounded p-1.5 text-xs flex items-center mb-1">
-                        <input type="checkbox" value="${act}" class="sec-checkbox mr-2 w-3 h-3">
-                        <span class="text-slate-200">${act}</span>
-                    </label>
-                `).join('');
             } else {
                 goalSelect.disabled = true;
                 goalSelect.innerHTML = '<option value="" disabled selected>Select activities first...</option>';
-                secListContainer.classList.add('opacity-50');
-                secListContainer.innerHTML = '<p class="text-sm text-slate-500 p-2 italic text-center mt-6">Select activities in Profile first...</p>';
             }
         }
 
-        // Live BMI Calculator
-        function calculateBMI() {
-            const w = parseFloat(document.getElementById('weight').value);
-            const ft = parseFloat(document.getElementById('height-ft').value);
-            const inc = parseFloat(document.getElementById('height-in').value) || 0;
-            
-            if (w && ft) {
-                const totalInches = (ft * 12) + inc;
-                if (totalInches > 0) {
-                    const bmi = (w / (totalInches * totalInches)) * 703;
-                    const display = document.getElementById('bmi-display');
-                    display.textContent = bmi.toFixed(1);
-                    display.classList.add('text-sky-300');
-                    display.classList.remove('text-slate-400');
-                    return;
+        // Logic for Goal Type Radios
+        const goalRadios = document.querySelectorAll('input[name="goal-type"]');
+        const endDateLabel = document.getElementById('end-date-label');
+        const compWarning = document.getElementById('comp-warning');
+        
+        goalRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if(e.target.value === 'competition') {
+                    endDateLabel.textContent = 'Date of Competition';
+                    endDateLabel.classList.add('text-amber-400');
+                    compWarning.classList.remove('hidden');
+                } else if(e.target.value === 'event') {
+                    endDateLabel.textContent = 'Date of Event';
+                    endDateLabel.classList.remove('text-amber-400');
+                    compWarning.classList.add('hidden');
+                } else {
+                    endDateLabel.textContent = 'Target End Date';
+                    endDateLabel.classList.remove('text-amber-400');
+                    compWarning.classList.add('hidden');
+                }
+            });
+        });
+
+        document.getElementById('save-profile-btn').addEventListener('click', async () => {
+            const age = document.getElementById('age').value;
                 }
             }
             document.getElementById('bmi-display').textContent = '--';
@@ -919,7 +979,7 @@
         document.getElementById('generate-btn').addEventListener('click', async () => {
             const startStr = document.getElementById('start-date').value;
             const endStr = document.getElementById('end-date').value;
-            const primaryGoal = document.getElementById('goal').value;
+            const primaryGoal = document.getElementById('goal').value; // Primary Activity
             if(!startStr || !endStr || !primaryGoal) return;
 
             const startDate = new Date(startStr + "T00:00:00");
@@ -931,21 +991,45 @@
 
             const genBtn = document.getElementById('generate-btn');
             const originalBtnText = genBtn.innerHTML;
-            genBtn.innerHTML = '<div class="loader inline-block align-middle mr-2 w-4 h-4 border-2 border-t-white"></div> Generating AI Plan...';
+            genBtn.innerHTML = '<div class="loader inline-block align-middle mr-2 w-4 h-4 border-2 border-t-white"></div> Analyzing & Generating...';
             genBtn.disabled = true;
+
+            // Gather all the new AI context variables
+            const trainingDays = document.getElementById('training-days').value || 3;
+            const focusElements = Array.from(document.querySelectorAll('.focus-cb:checked')).map(cb => cb.value);
+            const focusText = focusElements.length > 0 ? focusElements.join(', ') : 'General Fitness';
+            const goalType = document.querySelector('input[name="goal-type"]:checked').value;
+            const equipment = Array.from(document.querySelectorAll('.equip-cb:checked')).map(cb => cb.value).join(', ') || 'No equipment specified';
+            const avoid = document.getElementById('avoid-exercises').value || 'None';
+            const cardio = document.getElementById('cardio-prefs').value || 'Standard steady state';
+
+            // Construct the advanced Prompt
+            let promptInstruction = `Create a ${daysDiff}-day progressive fitness plan for someone training ${trainingDays} days a week. 
+            Their primary fitness focus is: ${focusText}. 
+            Their main physical activity is: ${primaryGoal}.
+            Equipment available to them: ${equipment}.
+            Cardio preferences: ${cardio}.
+            Exercises they must strictly avoid: ${avoid}.
+            If their focus contains conflicting goals (like Bulking and Improving Cardio), create a balanced hybrid protocol. 
+            Ensure exactly ${daysDiff} days of data are returned.`;
+
+            if (goalType === 'competition') {
+                promptInstruction += ` IMPORTANT INSTRUCTION: The user is training for a competition on the final day of this plan. You MUST explicitly program a deload / taper-off period in the final 5-7 days leading up to the end date to shed fatigue.`;
+            } else if (goalType === 'event') {
+                promptInstruction += ` The user is training for a specific event on the final day. Ensure the final week scales intensity appropriately so they feel fresh.`;
+            }
 
             currentPlanData = [];
             
             try {
-                // Call Gemini AI to dynamically generate the workout plan based on the input text/goal
-                const trainingDays = document.getElementById('training-days').value || 3;
+                // Call Gemini AI
                 const payload = {
                     contents: [{
                         role: "user",
-                        parts: [{ text: `Create a ${daysDiff}-day progressive fitness plan. The user's primary goal is: ${primaryGoal}. They train ${trainingDays} days a week. Make sure to generate exactly ${daysDiff} days of data.` }]
+                        parts: [{ text: promptInstruction }]
                     }],
                     systemInstruction: {
-                        parts: [{ text: "You are an expert fitness coach. Return ONLY a JSON array. Each element must represent a day and have: 'title' (string), 'desc' (string), and 'exercises' (array). Each exercise must have 'bodyPart' (string), 'exercise' (string), 'sets' (number), 'reps' (string), and 'weight' (string, use 'BW' for bodyweight or '0' if unknown). If it is a rest day, the 'exercises' array should be empty." }]
+                        parts: [{ text: "You are an elite fitness coach and sports scientist. Return ONLY a JSON array. Each element represents one chronological day and must have: 'title' (string), 'desc' (string), and 'exercises' (array). Each exercise must have 'bodyPart' (string), 'exercise' (string), 'sets' (number), 'reps' (string), and 'weight' (string, use 'BW' for bodyweight or '0' if unknown). On rest days, the 'exercises' array should be empty." }]
                     },
                     generationConfig: {
                         responseMimeType: "application/json",
