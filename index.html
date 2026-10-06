@@ -737,7 +737,19 @@
             clearInterval(previewTimerInterval);
             previewBanner.classList.add('hidden');
             stagedPlan = null;
-            loadUserPlan(); // Reload from DB
+            
+            // Reset the AI status message under the Generate button
+            const statusMsg = document.getElementById('generator-status');
+            if (statusMsg) {
+                statusMsg.textContent = "";
+                statusMsg.className = "text-sm mt-3 text-slate-400";
+            }
+            
+            // Instantly send the user back to the Setup form to try again
+            switchTab('plan-setup-tab');
+            
+            // Reload the database in the background to clean up the Dashboard
+            loadUserPlan(); 
         }
 
         // ==========================================
