@@ -527,7 +527,7 @@
         };
 
         //  ADMIN CONFIGURATION
-        const ADMIN_UID = 'HCar0CbZtdUxBEagfZXnFlqCKPi1'; // Replace after creating your admin account
+        const ADMIN_UID = 'YOUR_ADMIN_USER_UID_HERE'; // Replace after creating your admin account
         // ==========================================
 
         const appId = 'dynamic-fitness-app';
@@ -805,7 +805,6 @@
         const adminView = document.getElementById('admin-view');
         
         const actListContainer = document.getElementById('activities-list-container');
-        const secListContainer = document.getElementById('secondary-list-container');
         const goalSelect = document.getElementById('goal');
 
         function switchTab(tabName) {
@@ -901,19 +900,9 @@
                 goalSelect.disabled = false;
                 goalSelect.innerHTML = '<option value="" disabled selected>Select Primary Goal...</option>' + 
                     selectedActivities.map(act => `<option value="${act}">${act}</option>`).join('');
-                
-                secListContainer.classList.remove('opacity-50');
-                secListContainer.innerHTML = selectedActivities.map(act => `
-                    <label class="bg-slate-800 border border-slate-700 rounded p-1.5 text-xs flex items-center mb-1">
-                        <input type="checkbox" value="${act}" class="sec-checkbox mr-2 w-3 h-3">
-                        <span class="text-slate-200">${act}</span>
-                    </label>
-                `).join('');
             } else {
                 goalSelect.disabled = true;
                 goalSelect.innerHTML = '<option value="" disabled selected>Select activities first...</option>';
-                secListContainer.classList.add('opacity-50');
-                secListContainer.innerHTML = '<p class="text-sm text-slate-500 p-2 italic text-center mt-6">Select activities in Profile first...</p>';
             }
         }
 
@@ -1136,6 +1125,8 @@
                 };
 
                 const apiKey = ""; 
+                if (!apiKey) throw new Error("No AI key provided, safely falling back to standard plan logic.");
+
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1190,7 +1181,7 @@
                     const weekNum = Math.floor(i / 7) + 1;
                     
                     const templateIndex = dayIndex === 0 ? 6 : dayIndex - 1; 
-                    const workout = workout = template[templateIndex];
+                    const workout = template[templateIndex];
                     const isLifting = workout.title.includes('Body') || workout.title.includes('Legs');
                     const generatedExercises = isLifting ? generateLiftingWorkout(workout.title, weekNum) : [];
 
