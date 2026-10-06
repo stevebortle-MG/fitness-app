@@ -1,373 +1,369 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warrior Fitness Plan - RP 2026 Edition</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
-        .hidden { display: none !important; }
-        .tab-btn.active { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
-        .card { background-color: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; padding: 1.5rem; }
-        .input-field { width: 100%; background-color: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 0.5rem 0.75rem; color: #f8fafc; margin-top: 0.25rem; margin-bottom: 1rem; }
-        .input-field:focus { outline: none; border-color: #3b82f6; ring: 2px; ring-color: #3b82f6; }
-        
-        /* Custom Scrollbar for plan preview */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Warrior Fitness Plan - RP 2026 Edition</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+.hidden { display: none !important; }
+.tab-btn.active { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
+.card { background-color: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; padding: 1.5rem; }
+.input-field { width: 100%; background-color: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 0.5rem 0.75rem; color: #f8fafc; margin-top: 0.25rem; margin-bottom: 1rem; }
+.input-field:focus { outline: none; border-color: #3b82f6; ring: 2px; ring-color: #3b82f6; }
+
+/* Custom Scrollbar for plan preview */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #1e293b; }
+::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #64748b; }
+</style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- LOGIN SCREEN -->
-    <div id="login-screen" class="flex-1 flex flex-col items-center justify-center p-4">
-        <!-- Secret Admin Trigger: Double click title -->
-        <h1 id="app-title" class="text-4xl font-bold mb-2 text-center cursor-pointer select-none">
-            Warrior <span class="text-blue-500">Fitness Plan</span>
-        </h1>
-        <p class="text-slate-400 mb-8 text-center">Sign in to sync your workouts securely (RP Science-Backed).</p>
+<!-- LOGIN SCREEN -->
+<div id="login-screen" class="flex-1 flex flex-col items-center justify-center p-4">
+<!-- Secret Admin Trigger: Double click title -->
+<h1 id="app-title" class="text-4xl font-bold mb-2 text-center cursor-pointer select-none">
+Warrior <span class="text-blue-500">Fitness Plan</span>
+</h1>
+<p class="text-slate-400 mb-8 text-center">Sign in to sync your workouts securely (RP Science-Backed).</p>
 
-        <div class="bg-slate-800 border border-blue-500 border-opacity-50 p-8 rounded-xl shadow-2xl w-full max-w-md relative">
-            <label class="block text-xs font-bold text-slate-400 mb-1">EMAIL ADDRESS</label>
-            <input type="email" id="auth-email" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white mb-4 focus:border-blue-500 focus:outline-none" placeholder="you@email.com">
+<div class="bg-slate-800 border border-blue-500 border-opacity-50 p-8 rounded-xl shadow-2xl w-full max-w-md relative">
+<label class="block text-xs font-bold text-slate-400 mb-1">EMAIL ADDRESS</label>
+<input type="email" id="auth-email" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white mb-4 focus:border-blue-500 focus:outline-none" placeholder="you@email.com">
 
-            <label class="block text-xs font-bold text-slate-400 mb-1">PASSWORD</label>
-            <input type="password" id="auth-password" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white mb-6 focus:border-blue-500 focus:outline-none" placeholder="••••••••">
+<label class="block text-xs font-bold text-slate-400 mb-1">PASSWORD</label>
+<input type="password" id="auth-password" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white mb-6 focus:border-blue-500 focus:outline-none" placeholder="••••••••">
 
-            <button id="login-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded mb-4 transition-colors">
-                Log In
-            </button>
-            <button id="register-btn" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-4 rounded transition-colors">
-                Create Account
-            </button>
-            
-            <p id="auth-error" class="text-red-400 text-sm mt-4 text-center hidden"></p>
+<button id="login-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded mb-4 transition-colors">
+Log In
+</button>
+<button id="register-btn" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-4 rounded transition-colors">
+Create Account
+</button>
 
-            <!-- Hidden Admin Lock -->
-            <i id="secret-admin-lock" class="fa-solid fa-lock absolute bottom-3 right-3 text-slate-800 hover:text-slate-500 cursor-pointer transition-colors"></i>
-        </div>
-    </div>
+<p id="auth-error" class="text-red-400 text-sm mt-4 text-center hidden"></p>
 
-    <!-- MAIN APP SCREEN -->
-    <div id="main-app" class="hidden flex-1 flex flex-col">
-        <!-- Navigation -->
-        <nav class="bg-slate-900 border-b border-slate-800 p-4">
-            <div class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h2 class="text-xl font-bold">Warrior <span class="text-blue-500">Fitness Plan</span></h2>
-                <div class="flex gap-2 overflow-x-auto w-full sm:w-auto">
-                    <button class="tab-btn active px-4 py-2 font-semibold text-sm whitespace-nowrap" data-target="dashboard-tab">Dashboard</button>
-                    <button class="tab-btn px-4 py-2 font-semibold text-sm whitespace-nowrap text-slate-400" data-target="plan-setup-tab">Plan Setup</button>
-                    <button class="tab-btn px-4 py-2 font-semibold text-sm whitespace-nowrap text-slate-400" data-target="profile-tab">User Profile</button>
-                    <button id="admin-tab-btn" class="tab-btn hidden px-4 py-2 font-semibold text-sm whitespace-nowrap text-amber-500" data-target="admin-tab">
-                        <i class="fa-solid fa-crown mr-1"></i> Admin Area
-                    </button>
-                    <button id="logout-btn" class="px-4 py-2 font-semibold text-sm whitespace-nowrap text-red-400 hover:text-red-300">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                    </button>
-                </div>
-            </div>
-        </nav>
+<!-- Hidden Admin Lock -->
+<i id="secret-admin-lock" class="fa-solid fa-lock absolute bottom-3 right-3 text-slate-800 hover:text-slate-500 cursor-pointer transition-colors"></i>
+</div>
+</div>
 
-        <!-- PLAN PREVIEW BANNER (Hidden by default) -->
-        <div id="preview-banner" class="hidden bg-amber-600 text-white p-4 sticky top-0 z-50 shadow-lg">
-            <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-                <div>
-                    <h3 class="font-bold text-lg"><i class="fa-solid fa-eye mr-2"></i> Plan Preview Mode (RP Hypertrophy Standard)</h3>
-                    <p class="text-sm">Review your generated plan below. It will expire in <span id="preview-timer" class="font-mono font-bold text-xl">10:00</span></p>
-                </div>
-                <div class="flex gap-3 w-full md:w-auto">
-                    <button id="save-plan-btn" class="flex-1 md:flex-none bg-white text-amber-700 font-bold py-2 px-6 rounded hover:bg-amber-50 transition-colors">
-                        <i class="fa-solid fa-floppy-disk mr-2"></i> Save Plan
-                    </button>
-                    <button id="discard-plan-btn" class="flex-1 md:flex-none bg-amber-800 text-white font-bold py-2 px-6 rounded hover:bg-amber-900 transition-colors">
-                        <i class="fa-solid fa-trash mr-2"></i> Discard
-                    </button>
-                </div>
-            </div>
-        </div>
+<!-- MAIN APP SCREEN -->
+<div id="main-app" class="hidden flex-1 flex flex-col">
+<!-- Navigation -->
+<nav class="bg-slate-900 border-b border-slate-800 p-4">
+<div class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+<h2 class="text-xl font-bold">Warrior <span class="text-blue-500">Fitness Plan</span></h2>
+<div class="flex gap-2 overflow-x-auto w-full sm:w-auto">
+<button class="tab-btn active px-4 py-2 font-semibold text-sm whitespace-nowrap" data-target="dashboard-tab">Dashboard</button>
+<button class="tab-btn px-4 py-2 font-semibold text-sm whitespace-nowrap text-slate-400" data-target="plan-setup-tab">Plan Setup</button>
+<button class="tab-btn px-4 py-2 font-semibold text-sm whitespace-nowrap text-slate-400" data-target="profile-tab">User Profile</button>
+<button id="admin-tab-btn" class="tab-btn hidden px-4 py-2 font-semibold text-sm whitespace-nowrap text-amber-500" data-target="admin-tab">
+<i class="fa-solid fa-crown mr-1"></i> Admin Area
+</button>
+<button id="logout-btn" class="px-4 py-2 font-semibold text-sm whitespace-nowrap text-red-400 hover:text-red-300">
+<i class="fa-solid fa-right-from-bracket"></i>
+</button>
+</div>
+</div>
+</nav>
 
-        <!-- Main Content Area -->
-        <main class="flex-1 max-w-5xl mx-auto w-full p-4 pb-12">
+<!-- PLAN PREVIEW BANNER (Hidden by default) -->
+<div id="preview-banner" class="hidden bg-amber-600 text-white p-4 sticky top-0 z-50 shadow-lg">
+<div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+<div>
+<h3 class="font-bold text-lg"><i class="fa-solid fa-eye mr-2"></i> Plan Preview Mode (RP Hypertrophy Standard)</h3>
+<p class="text-sm">Review your generated plan below. It will expire in <span id="preview-timer" class="font-mono font-bold text-xl">10:00</span></p>
+</div>
+<div class="flex gap-3 w-full md:w-auto">
+<button id="save-plan-btn" class="flex-1 md:flex-none bg-white text-amber-700 font-bold py-2 px-6 rounded hover:bg-amber-50 transition-colors">
+<i class="fa-solid fa-floppy-disk mr-2"></i> Save Plan
+</button>
+<button id="discard-plan-btn" class="flex-1 md:flex-none bg-amber-800 text-white font-bold py-2 px-6 rounded hover:bg-amber-900 transition-colors">
+<i class="fa-solid fa-trash mr-2"></i> Discard
+</button>
+</div>
+</div>
+</div>
 
-            <!-- DASHBOARD TAB -->
-            <div id="dashboard-tab" class="tab-content">
-                <div class="flex justify-between items-end mb-6">
-                    <div>
-                        <h2 class="text-3xl font-bold">Your Training Plan</h2>
-                        <p id="dashboard-subtitle" class="text-slate-400">Loading your schedule...</p>
-                    </div>
-                </div>
+<!-- Main Content Area -->
+<main class="flex-1 max-w-5xl mx-auto w-full p-4 pb-12">
 
-                <!-- Empty State -->
-                <div id="no-plan-state" class="hidden bg-slate-800 border-2 border-dashed border-slate-600 rounded-xl p-12 text-center">
-                    <i class="fa-solid fa-calendar-xmark text-6xl text-slate-500 mb-4"></i>
-                    <h3 class="text-2xl font-bold mb-2">No Active Plan</h3>
-                    <p class="text-slate-400 mb-6 max-w-md mx-auto">You haven't generated a workout schedule yet. Choose from our Top 2026 Gym Splits and RP rep ranges below.</p>
-                    <button onclick="switchTab('plan-setup-tab')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg transition-colors">
-                        Go to Plan Setup <i class="fa-solid fa-arrow-right ml-2"></i>
-                    </button>
-                </div>
+<!-- DASHBOARD TAB -->
+<div id="dashboard-tab" class="tab-content">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h2 class="text-3xl font-bold">Your Training Plan</h2>
+<p id="dashboard-subtitle" class="text-slate-400">Loading your schedule...</p>
+</div>
+</div>
 
-                <!-- Plan Container -->
-                <div id="plan-container" class="space-y-6">
-                    <!-- Javascript will render the weeks and days here -->
-                </div>
-            </div>
+<!-- Empty State -->
+<div id="no-plan-state" class="hidden bg-slate-800 border-2 border-dashed border-slate-600 rounded-xl p-12 text-center">
+<i class="fa-solid fa-calendar-xmark text-6xl text-slate-500 mb-4"></i>
+<h3 class="text-2xl font-bold mb-2">No Active Plan</h3>
+<p class="text-slate-400 mb-6 max-w-md mx-auto">You haven't generated a workout schedule yet. Choose from our Top 2026 Gym Splits and RP rep ranges below.</p>
+<button onclick="switchTab('plan-setup-tab')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg transition-colors">
+Go to Plan Setup <i class="fa-solid fa-arrow-right ml-2"></i>
+</button>
+</div>
 
-            <!-- PLAN SETUP TAB -->
-            <div id="plan-setup-tab" class="tab-content hidden">
-                <h2 class="text-3xl font-bold mb-6">Configure Your Next Block (Dr. Mike Israetel RP System)</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Card 1: Objective & Splits -->
-                    <div class="card">
-                        <h3 class="text-xl font-bold text-blue-400 mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-crosshairs mr-2"></i> The Objective & Split</h3>
-                        
-                        <label class="block text-sm font-bold text-slate-400">Primary Focus (Select all that apply)</label>
-                        <div class="grid grid-cols-2 gap-2 mt-2 mb-4">
-                            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="focus" value="Strength" class="rounded bg-slate-800 border-slate-600 text-blue-500"> Strength</label>
-                            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="focus" value="Hypertrophy" class="rounded bg-slate-800 border-slate-600 text-blue-500" checked> Hypertrophy (Muscle)</label>
-                            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="focus" value="Fat Loss" class="rounded bg-slate-800 border-slate-600 text-blue-500"> Fat Loss</label>
-                            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="focus" value="Endurance" class="rounded bg-slate-800 border-slate-600 text-blue-500"> Endurance/Cardio</label>
-                            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="focus" value="Recomp" class="rounded bg-slate-800 border-slate-600 text-blue-500"> Body Recomp</label>
-                            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="focus" value="Mobility" class="rounded bg-slate-800 border-slate-600 text-blue-500"> Mobility/Recovery</label>
-                        </div>
+<!-- Plan Container -->
+<div id="plan-container" class="space-y-6">
+<!-- Javascript will render the weeks and days here -->
+</div>
+</div>
 
-                        <label class="block text-sm font-bold text-slate-400">Top 2026 Gym Split Selection</label>
-                        <select id="primary-activity" class="input-field">
-                            <option value="1. Push / Pull / Legs (PPL)">1. Push / Pull / Legs (PPL) — 3-6 days/wk (Intermediates/Advanced)</option>
-                            <option value="2. Upper / Lower Split">2. Upper / Lower Split — 4 days/wk (Beginner to Advanced)</option>
-                            <option value="3. Full Body Routine">3. Full Body Routine — 3 days/wk (Beginner/Foundational)</option>
-                            <option value="4. Arnold Split">4. Arnold Split (Chest/Back, Shoulders/Arms, Legs) — 3-6 days/wk</option>
-                            <option value="5. Bro Split">5. Bro Split (Body Part Split) — 5 days/wk (High-volume focus)</option>
-                            <option value="6. Upper / Lower / PPL Hybrid">6. Upper/Lower/PPL Hybrid — 5 days/wk (Balanced variety)</option>
-                            <option value="7. PHUL">7. PHUL (Power Hypertrophy Upper Lower) — 4 days/wk</option>
-                            <option value="8. PH3">8. PH3 by Layne Norton — 3 heavy days/wk (Advanced Power-builders)</option>
-                            <option value="9. Upper / Lower / Full Body">9. Upper / Lower / Full Body — 3-4 days/wk</option>
-                            <option value="10. Antagonistic Super-Set Split">10. Antagonistic Super-Set Split — 4-5 days/wk (Time-efficient)</option>
-                            <option value="Other">Other (Custom AI Prompt)</option>
-                        </select>
+<!-- PLAN SETUP TAB -->
+<div id="plan-setup-tab" class="tab-content hidden">
+<h2 class="text-3xl font-bold mb-6">Configure Your Next Block (Dr. Mike Israetel RP System)</h2>
 
-                        <div id="split-description" class="text-xs text-slate-400 bg-slate-900 p-3 rounded border border-slate-700 mb-4">
-                            Select a split above to view frequency, target audience, and overview.
-                        </div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Card 1: Objective & Splits -->
+<div class="card">
+<h3 class="text-xl font-bold text-blue-400 mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-crosshairs mr-2"></i> The Objective & Split</h3>
 
-                        <div id="other-activity-container" class="hidden">
-                            <label class="block text-sm font-bold text-blue-400"><i class="fa-solid fa-robot mr-1"></i> Custom Activity Prompt</label>
-                            <input type="text" id="other-activity-text" class="input-field border-blue-500" placeholder="e.g., Kettlebells, Strongman...">
-                        </div>
+<label class="block text-sm font-bold text-slate-400">Primary Focus (Select all that apply)</label>
+<div class="grid grid-cols-2 gap-2 mt-2 mb-4">
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" name="focus" value="Strength" class="rounded bg-slate-800 border-slate-600 text-blue-500"> Strength</label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" name="focus" value="Hypertrophy" class="rounded bg-slate-800 border-slate-600 text-blue-500" checked> Hypertrophy (Muscle)</label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" name="focus" value="Fat Loss" class="rounded bg-slate-800 border-slate-600 text-blue-500"> Fat Loss</label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" name="focus" value="Endurance" class="rounded bg-slate-800 border-slate-600 text-blue-500"> Endurance/Cardio</label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" name="focus" value="Recomp" class="rounded bg-slate-800 border-slate-600 text-blue-500"> Body Recomp</label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" name="focus" value="Mobility" class="rounded bg-slate-800 border-slate-600 text-blue-500"> Mobility/Recovery</label>
+</div>
 
-                        <label class="block text-sm font-bold text-slate-400">Training Days Per Week</label>
-                        <select id="training-days" class="input-field">
-                            <option value="3">3 Days (Beginner/Busy)</option>
-                            <option value="4" selected>4 Days (Standard)</option>
-                            <option value="5">5 Days (Advanced)</option>
-                            <option value="6">6 Days (Elite)</option>
-                        </select>
-                    </div>
+<label class="block text-sm font-bold text-slate-400">Top 2026 Gym Split Selection</label>
+<select id="primary-activity" class="input-field">
+<option value="1. Push / Pull / Legs (PPL)">1. Push / Pull / Legs (PPL) — 3-6 days/wk (Intermediates/Advanced)</option>
+<option value="2. Upper / Lower Split">2. Upper / Lower Split — 4 days/wk (Beginner to Advanced)</option>
+<option value="3. Full Body Routine">3. Full Body Routine — 3 days/wk (Beginner/Foundational)</option>
+<option value="4. Arnold Split">4. Arnold Split (Chest/Back, Shoulders/Arms, Legs) — 3-6 days/wk</option>
+<option value="5. Bro Split">5. Bro Split (Body Part Split) — 5 days/wk (High-volume focus)</option>
+<option value="6. Upper / Lower / PPL Hybrid">6. Upper/Lower/PPL Hybrid — 5 days/wk (Balanced variety)</option>
+<option value="7. PHUL">7. PHUL (Power Hypertrophy Upper Lower) — 4 days/wk</option>
+<option value="8. PH3">8. PH3 by Layne Norton — 3 heavy days/wk (Advanced Power-builders)</option>
+<option value="9. Upper / Lower / Full Body">9. Upper / Lower / Full Body — 3-4 days/wk</option>
+<option value="10. Antagonistic Super-Set Split">10. Antagonistic Super-Set Split — 4-5 days/wk (Time-efficient)</option>
+<option value="Other">Other (Custom AI Prompt)</option>
+</select>
 
-                    <!-- Card 2: Timeline -->
-                    <div class="card">
-                        <h3 class="text-xl font-bold text-emerald-400 mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-calendar-days mr-2"></i> Timeline & Event</h3>
-                        
-                        <label class="block text-sm font-bold text-slate-400 mb-2">Goal Type</label>
-                        <div class="space-y-2 mb-4">
-                            <label class="flex items-center gap-2 p-2 rounded bg-slate-800 border border-slate-700 cursor-pointer hover:bg-slate-700">
-                                <input type="radio" name="goal_type" value="general" checked class="text-emerald-500 focus:ring-emerald-500"> 
-                                <div>
-                                    <div class="font-bold text-sm">General Training Block</div>
-                                    <div class="text-xs text-slate-400">Standard progression (12 weeks)</div>
-                                </div>
-                            </label>
-                            <label class="flex items-center gap-2 p-2 rounded bg-slate-800 border border-slate-700 cursor-pointer hover:bg-slate-700">
-                                <input type="radio" name="goal_type" value="event" class="text-emerald-500 focus:ring-emerald-500"> 
-                                <div>
-                                    <div class="font-bold text-sm">Specific Event (Non-Competitive)</div>
-                                    <div class="text-xs text-slate-400">Vacation, wedding, photo shoot</div>
-                                </div>
-                            </label>
-                            <label class="flex items-center gap-2 p-2 rounded bg-slate-800 border border-slate-700 cursor-pointer hover:bg-slate-700">
-                                <input type="radio" name="goal_type" value="competition" class="text-emerald-500 focus:ring-emerald-500"> 
-                                <div>
-                                    <div class="font-bold text-sm">Competition / Meet</div>
-                                    <div class="text-xs text-slate-400">Requires deload/taper period</div>
-                                </div>
-                            </label>
-                        </div>
+<div id="split-description" class="text-xs text-slate-400 bg-slate-900 p-3 rounded border border-slate-700 mb-4">
+Select a split above to view frequency, target audience, and overview.
+</div>
 
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-bold text-slate-400">Start Date</label>
-                                <input type="date" id="start-date" class="input-field">
-                            </div>
-                            <div>
-                                <label id="end-date-label" class="block text-sm font-bold text-slate-400">Target End Date (12 Weeks)</label>
-                                <input type="date" id="end-date" class="input-field">
-                            </div>
-                        </div>
-                        <p id="taper-warning" class="text-xs text-amber-500 hidden mt-1"><i class="fa-solid fa-triangle-exclamation"></i> AI will automatically schedule a taper/deload leading up to this date.</p>
-                    </div>
+<div id="other-activity-container" class="hidden">
+<label class="block text-sm font-bold text-blue-400"><i class="fa-solid fa-robot mr-1"></i> Custom Activity Prompt</label>
+<input type="text" id="other-activity-text" class="input-field border-blue-500" placeholder="e.g., Kettlebells, Strongman...">
+</div>
 
-                    <!-- Card 3: Preferences -->
-                    <div class="card md:col-span-2">
-                        <h3 class="text-xl font-bold text-purple-400 mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-sliders mr-2"></i> RP Intensity & Limitations</h3>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-bold text-slate-400">Available Equipment</label>
-                                <select id="equipment" class="input-field">
-                                    <option value="Full Commercial Gym">Full Commercial Gym</option>
-                                    <option value="Basic Home Gym (Dumbbells/Bench)">Basic Home Gym (Dumbbells/Bench)</option>
-                                    <option value="Bodyweight Only">Bodyweight Only</option>
-                                </select>
+<label class="block text-sm font-bold text-slate-400">Training Days Per Week</label>
+<select id="training-days" class="input-field">
+<option value="3">3 Days (Beginner/Busy)</option>
+<option value="4" selected>4 Days (Standard)</option>
+<option value="5">5 Days (Advanced)</option>
+<option value="6">6 Days (Elite)</option>
+</select>
+</div>
 
-                                <label class="block text-sm font-bold text-slate-400">RP Rep Range Distribution Preference</label>
-                                <select id="rep-style" class="input-field">
-                                    <option value="Golden Distribution (50% in 10-20, split 5-10 & 20-30)">Golden Distribution (Balanced across 5-30 reps)</option>
-                                    <option value="Strength Focus (Heavy 5-10 emphasis)">Strength Focus (Heavy 5-10 compounds)</option>
-                                    <option value="Pump Focus (Higher 15-30 isolation emphasis)">Pump Focus (High metabolic 15-30 reps)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-bold text-red-400"><i class="fa-solid fa-ban mr-1"></i> Strictly Avoid Exercises</label>
-                                <textarea id="avoid-exercises" class="input-field h-24 border-red-900 focus:border-red-500" placeholder="e.g., Deadlifts, Back Squats (AI will enforce strict alternatives)"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!-- Card 2: Timeline -->
+<div class="card">
+<h3 class="text-xl font-bold text-emerald-400 mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-calendar-days mr-2"></i> Timeline & Event</h3>
 
-                <div class="mt-8 text-center">
-                    <button id="generate-plan-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-12 rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:scale-105 text-lg">
-                        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Generate RP-Optimized Plan
-                    </button>
-                    <p class="text-sm text-slate-400 mt-3" id="generator-status"></p>
-                </div>
-            </div>
+<label class="block text-sm font-bold text-slate-400 mb-2">Goal Type</label>
+<div class="space-y-2 mb-4">
+<label class="flex items-center gap-2 p-2 rounded bg-slate-800 border border-slate-700 cursor-pointer hover:bg-slate-700">
+<input type="radio" name="goal_type" value="general" checked class="text-emerald-500 focus:ring-emerald-500"> 
+<div>
+<div class="font-bold text-sm">General Training Block</div>
+<div class="text-xs text-slate-400">Standard progression (12 weeks)</div>
+</div>
+</label>
+<label class="flex items-center gap-2 p-2 rounded bg-slate-800 border border-slate-700 cursor-pointer hover:bg-slate-700">
+<input type="radio" name="goal_type" value="event" class="text-emerald-500 focus:ring-emerald-500"> 
+<div>
+<div class="font-bold text-sm">Specific Event (Non-Competitive)</div>
+<div class="text-xs text-slate-400">Vacation, wedding, photo shoot</div>
+</div>
+</label>
+<label class="flex items-center gap-2 p-2 rounded bg-slate-800 border border-slate-700 cursor-pointer hover:bg-slate-700">
+<input type="radio" name="goal_type" value="competition" class="text-emerald-500 focus:ring-emerald-500"> 
+<div>
+<div class="font-bold text-sm">Competition / Meet</div>
+<div class="text-xs text-slate-400">Requires deload/taper period</div>
+</div>
+</label>
+</div>
 
-            <!-- USER PROFILE TAB -->
-            <div id="profile-tab" class="tab-content hidden">
-                <div class="max-w-2xl mx-auto card">
-                    <h2 class="text-3xl font-bold mb-6 border-b border-slate-700 pb-4">Your Biological Profile</h2>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-bold text-slate-400">First Name</label>
-                            <input type="text" id="prof-first-name" class="input-field">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-slate-400">Last Name</label>
-                            <input type="text" id="prof-last-name" class="input-field">
-                        </div>
-                    </div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-bold text-slate-400">Start Date</label>
+<input type="date" id="start-date" class="input-field">
+</div>
+<div>
+<label id="end-date-label" class="block text-sm font-bold text-slate-400">Target End Date (12 Weeks)</label>
+<input type="date" id="end-date" class="input-field">
+</div>
+</div>
+<p id="taper-warning" class="text-xs text-amber-500 hidden mt-1"><i class="fa-solid fa-triangle-exclamation"></i> AI will automatically schedule a taper/deload leading up to this date.</p>
+</div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                        <div>
-                            <label class="block text-sm font-bold text-slate-400">Date of Birth</label>
-                            <input type="date" id="prof-dob" class="input-field mb-1">
-                            <p class="text-xs text-slate-500 mb-4">Age: <span id="display-age">--</span> years</p>
-                            
-                            <label class="block text-sm font-bold text-slate-400">Biological Sex</label>
-                            <select id="prof-gender" class="input-field">
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other / Prefer not to say</option>
-                            </select>
-                        </div>
+<!-- Card 3: Preferences -->
+<div class="card md:col-span-2">
+<h3 class="text-xl font-bold text-purple-400 mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-sliders mr-2"></i> RP Intensity & Limitations</h3>
 
-                        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
-                            <h4 class="font-bold text-blue-400 mb-3 text-sm uppercase tracking-wider">Body Metrics</h4>
-                            
-                            <div class="flex gap-2 mb-4">
-                                <div class="flex-1">
-                                    <label class="block text-xs font-bold text-slate-400">Height (Ft)</label>
-                                    <input type="number" id="prof-height-ft" class="input-field mb-0" min="3" max="8">
-                                </div>
-                                <div class="flex-1">
-                                    <label class="block text-xs font-bold text-slate-400">Height (In)</label>
-                                    <input type="number" id="prof-height-in" class="input-field mb-0" min="0" max="11">
-                                </div>
-                            </div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-bold text-slate-400">Available Equipment</label>
+<select id="equipment" class="input-field">
+<option value="Full Commercial Gym">Full Commercial Gym</option>
+<option value="Basic Home Gym (Dumbbells/Bench)">Basic Home Gym (Dumbbells/Bench)</option>
+<option value="Bodyweight Only">Bodyweight Only</option>
+</select>
 
-                            <label class="block text-xs font-bold text-slate-400">Weight (lbs)</label>
-                            <input type="number" id="prof-weight" class="input-field mb-1">
-                            <p class="text-xs text-slate-500 mb-4">BMI: <span id="display-bmi" class="font-bold text-white">--</span></p>
+<label class="block text-sm font-bold text-slate-400">RP Rep Range Distribution Preference</label>
+<select id="rep-style" class="input-field">
+<option value="Golden Distribution (50% in 10-20, split 5-10 & 20-30)">Golden Distribution (Balanced across 5-30 reps)</option>
+<option value="Strength Focus (Heavy 5-10 emphasis)">Strength Focus (Heavy 5-10 compounds)</option>
+<option value="Pump Focus (Higher 15-30 isolation emphasis)">Pump Focus (High metabolic 15-30 reps)</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-bold text-red-400"><i class="fa-solid fa-ban mr-1"></i> Strictly Avoid Exercises</label>
+<textarea id="avoid-exercises" class="input-field h-24 border-red-900 focus:border-red-500" placeholder="e.g., Deadlifts, Back Squats (AI will enforce strict alternatives)"></textarea>
+</div>
+</div>
+</div>
+</div>
 
-                            <label class="block text-xs font-bold text-emerald-400"><i class="fa-solid fa-tape mr-1"></i> Waist Circumference (Inches)</label>
-                            <input type="number" step="0.5" id="prof-waist" class="input-field border-emerald-900 mb-1">
-                            <p class="text-[10px] text-slate-400 leading-tight">Waist size is a more accurate indicator of body recomposition and health than BMI.</p>
-                        </div>
-                    </div>
+<div class="mt-8 text-center">
+<button id="generate-plan-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-12 rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:scale-105 text-lg">
+<i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Generate RP-Optimized Plan
+</button>
+<p class="text-sm text-slate-400 mt-3" id="generator-status"></p>
+</div>
+</div>
 
-                    <button id="save-profile-btn" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded transition-colors">
-                        Save Profile Data
-                    </button>
-                    <p id="profile-msg" class="text-green-400 text-sm mt-3 text-center hidden">Profile updated successfully!</p>
+<!-- USER PROFILE TAB -->
+<div id="profile-tab" class="tab-content hidden">
+<div class="max-w-2xl mx-auto card">
+<h2 class="text-3xl font-bold mb-6 border-b border-slate-700 pb-4">Your Biological Profile</h2>
 
-                    <div class="mt-8 pt-4 border-t border-slate-700 text-xs text-slate-500 flex justify-between">
-                        <span>Account Email: <span id="display-email" class="text-slate-300"></span></span>
-                        <span>Your Setup UID: <span id="display-uid" class="text-slate-300 select-all font-mono"></span></span>
-                    </div>
-                </div>
-            </div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-bold text-slate-400">First Name</label>
+<input type="text" id="prof-first-name" class="input-field">
+</div>
+<div>
+<label class="block text-sm font-bold text-slate-400">Last Name</label>
+<input type="text" id="prof-last-name" class="input-field">
+</div>
+</div>
 
-            <!-- ADMIN AREA TAB -->
-            <div id="admin-tab" class="tab-content hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-3xl font-bold text-amber-500"><i class="fa-solid fa-crown mr-2"></i> Admin Control Panel</h2>
-                    <button id="admin-refresh-btn" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded text-sm"><i class="fa-solid fa-rotate-right mr-2"></i>Refresh Data</button>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div class="bg-slate-800 p-4 rounded border border-slate-700 text-center">
-                        <div class="text-4xl font-bold text-blue-400" id="admin-total-users">0</div>
-                        <div class="text-sm text-slate-400 uppercase tracking-wide mt-1">Total Users</div>
-                    </div>
-                    <div class="bg-slate-800 p-4 rounded border border-slate-700 text-center">
-                        <div class="text-4xl font-bold text-emerald-400" id="admin-total-plans">0</div>
-                        <div class="text-sm text-slate-400 uppercase tracking-wide mt-1">Active Plans</div>
-                    </div>
-                </div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+<div>
+<label class="block text-sm font-bold text-slate-400">Date of Birth</label>
+<input type="date" id="prof-dob" class="input-field mb-1">
+<p class="text-xs text-slate-500 mb-4">Age: <span id="display-age">--</span> years</p>
 
-                <div class="card overflow-x-auto">
-                    <h3 class="text-xl font-bold mb-4">User Database</h3>
-                    <table class="w-full text-left text-sm">
-                        <thead class="text-slate-400 border-b border-slate-700">
-                            <tr>
-                                <th class="pb-2">Name</th>
-                                <th class="pb-2">Email</th>
-                                <th class="pb-2">Height / Weight / Waist</th>
-                                <th class="pb-2">BMI</th>
-                                <th class="pb-2">Goal Focus</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-users-list" class="divide-y divide-slate-800">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+<label class="block text-sm font-bold text-slate-400">Biological Sex</label>
+<select id="prof-gender" class="input-field">
+<option value="Male">Male</option>
+<option value="Female">Female</option>
+<option value="Other">Other / Prefer not to say</option>
+</select>
+</div>
 
-        </main>
-    </div>
+<div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+<h4 class="font-bold text-blue-400 mb-3 text-sm uppercase tracking-wider">Body Metrics</h4>
 
-    <!-- FIREBASE & LOGIC -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+<div class="flex gap-2 mb-4">
+<div class="flex-1">
+<label class="block text-xs font-bold text-slate-400">Height (Ft)</label>
+<input type="number" id="prof-height-ft" class="input-field mb-0" min="3" max="8">
+</div>
+<div class="flex-1">
+<label class="block text-xs font-bold text-slate-400">Height (In)</label>
+<input type="number" id="prof-height-in" class="input-field mb-0" min="0" max="11">
+</div>
+</div>
 
-        // ==========================================
-        // 1. CONFIGURATION
-        // ==========================================
-       // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+<label class="block text-xs font-bold text-slate-400">Weight (lbs)</label>
+<input type="number" id="prof-weight" class="input-field mb-1">
+<p class="text-xs text-slate-500 mb-4">BMI: <span id="display-bmi" class="font-bold text-white">--</span></p>
+
+<label class="block text-xs font-bold text-emerald-400"><i class="fa-solid fa-tape mr-1"></i> Waist Circumference (Inches)</label>
+<input type="number" step="0.5" id="prof-waist" class="input-field border-emerald-900 mb-1">
+<p class="text-[10px] text-slate-400 leading-tight">Waist size is a more accurate indicator of body recomposition and health than BMI.</p>
+</div>
+</div>
+
+<button id="save-profile-btn" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded transition-colors">
+Save Profile Data
+</button>
+<p id="profile-msg" class="text-green-400 text-sm mt-3 text-center hidden">Profile updated successfully!</p>
+
+<div class="mt-8 pt-4 border-t border-slate-700 text-xs text-slate-500 flex justify-between">
+<span>Account Email: <span id="display-email" class="text-slate-300"></span></span>
+<span>Your Setup UID: <span id="display-uid" class="text-slate-300 select-all font-mono"></span></span>
+</div>
+</div>
+</div>
+
+<!-- ADMIN AREA TAB -->
+<div id="admin-tab" class="tab-content hidden">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-3xl font-bold text-amber-500"><i class="fa-solid fa-crown mr-2"></i> Admin Control Panel</h2>
+<button id="admin-refresh-btn" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded text-sm"><i class="fa-solid fa-rotate-right mr-2"></i>Refresh Data</button>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+<div class="bg-slate-800 p-4 rounded border border-slate-700 text-center">
+<div class="text-4xl font-bold text-blue-400" id="admin-total-users">0</div>
+<div class="text-sm text-slate-400 uppercase tracking-wide mt-1">Total Users</div>
+</div>
+<div class="bg-slate-800 p-4 rounded border border-slate-700 text-center">
+<div class="text-4xl font-bold text-emerald-400" id="admin-total-plans">0</div>
+<div class="text-sm text-slate-400 uppercase tracking-wide mt-1">Active Plans</div>
+</div>
+</div>
+
+<div class="card overflow-x-auto">
+<h3 class="text-xl font-bold mb-4">User Database</h3>
+<table class="w-full text-left text-sm">
+<thead class="text-slate-400 border-b border-slate-700">
+<tr>
+<th class="pb-2">Name</th>
+<th class="pb-2">Email</th>
+<th class="pb-2">Height / Weight / Waist</th>
+<th class="pb-2">BMI</th>
+<th class="pb-2">Goal Focus</th>
+</tr>
+</thead>
+<tbody id="admin-users-list" class="divide-y divide-slate-800">
+<!-- Populated by JS -->
+</tbody>
+</table>
+</div>
+</div>
+
+</main>
+</div>
+
+<!-- FIREBASE & LOGIC -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+// ==========================================
+// 1. CONFIGURATION
+// ==========================================
+
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -384,501 +380,501 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-        };
+};
 
-        const ADMIN_UID = 'YOUR_ADMIN_USER_UID_HERE'; 
-        const GEMINI_API_KEY = 'AQ.Ab8RN6Iqc-Rqc5AbWLR1mS8y7s9WaXP5Cpv8fajVBClOypE1Jw';
+const ADMIN_UID = 'YOUR_ADMIN_USER_UID_HERE'; 
+const GEMINI_API_KEY = 'AQ.Ab8RN6Iqc-Rqc5AbWLR1mS8y7s9WaXP5Cpv8fajVBClOypE1Jw';
 
-        // ==========================================
-        // 2. INITIALIZATION
-        // ==========================================
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+// ==========================================
+// 2. INITIALIZATION
+// ==========================================
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-        let currentUser = null;
-        let currentProfileData = null;
-        
-        let stagedPlan = null;
-        let previewTimerInterval = null;
-        let previewTimeLeft = 600; // 10 minutes
+let currentUser = null;
+let currentProfileData = null;
 
-        const loginScreen = document.getElementById('login-screen');
-        const mainApp = document.getElementById('main-app');
-        const authError = document.getElementById('auth-error');
-        const adminTabBtn = document.getElementById('admin-tab-btn');
-        const previewBanner = document.getElementById('preview-banner');
+let stagedPlan = null;
+let previewTimerInterval = null;
+let previewTimeLeft = 600; // 10 minutes
 
-        // Top 10 Gym Splits Dictionary & Descriptions
-        const splitDescriptions = {
-            "1. Push / Pull / Legs (PPL)": "Frequency: 3-6 days/wk. Best For: Intermediates/Advanced. Chest/shoulders/triceps on D1, back/biceps on D2, lower body on D3. Hits muscles 2x/wk.",
-            "2. Upper / Lower Split": "Frequency: 4 days/wk. Best For: Beginners to Advanced. Balances frequency and recovery with 2 upper and 2 lower sessions.",
-            "3. Full Body Routine": "Frequency: 3 days/wk. Best For: Beginners & time-crunched athletes. Trains every major muscle group every session.",
-            "4. Arnold Split": "Frequency: 3-6 days/wk. Best For: Intermediate/Advanced bodybuilders. Pairs chest/back, shoulders/arms, and legs for massive pumps.",
-            "5. Bro Split": "Frequency: 5 days/wk. Best For: Bodybuilding enthusiasts. Dedicates each day to a single muscle group for deep session fatigue.",
-            "6. Upper / Lower / PPL Hybrid": "Frequency: 5 days/wk. Best For: Intermediates seeking structural variety combining upper/lower with PPL.",
-            "7. PHUL": "Frequency: 4 days/wk. Best For: Strength & hypertrophy simultaneously (2 power days, 2 hypertrophy accessory days).",
-            "8. PH3": "Frequency: 3 heavy days/wk by Layne Norton. Best For: Advanced power-builders focusing heavily on squat, bench, and deadlift.",
-            "9. Upper / Lower / Full Body": "Frequency: 3-4 days/wk. Best For: Flexible intermediate scheduling.",
-            "10. Antagonistic Super-Set Split": "Frequency: 4-5 days/wk. Best For: Time-efficient conditioning grouping opposing muscle groups (chest/back, quads/hams)."
-        };
+const loginScreen = document.getElementById('login-screen');
+const mainApp = document.getElementById('main-app');
+const authError = document.getElementById('auth-error');
+const adminTabBtn = document.getElementById('admin-tab-btn');
+const previewBanner = document.getElementById('preview-banner');
 
-        document.getElementById('primary-activity').addEventListener('change', (e) => {
-            const val = e.target.value;
-            const descBox = document.getElementById('split-description');
-            const otherBox = document.getElementById('other-activity-container');
-            
-            if(val === 'Other') {
-                otherBox.classList.remove('hidden');
-                descBox.textContent = "Custom AI Prompt mode selected. Enter your unique training focus below.";
-            } else {
-                otherBox.classList.add('hidden');
-                descBox.textContent = splitDescriptions[val] || '';
-            }
-        });
-        document.getElementById('primary-activity').dispatchEvent(new Event('change'));
+// Top 10 Gym Splits Dictionary & Descriptions
+const splitDescriptions = {
+"1. Push / Pull / Legs (PPL)": "Frequency: 3-6 days/wk. Best For: Intermediates/Advanced. Chest/shoulders/triceps on D1, back/biceps on D2, lower body on D3. Hits muscles 2x/wk.",
+"2. Upper / Lower Split": "Frequency: 4 days/wk. Best For: Beginners to Advanced. Balances frequency and recovery with 2 upper and 2 lower sessions.",
+"3. Full Body Routine": "Frequency: 3 days/wk. Best For: Beginners & time-crunched athletes. Trains every major muscle group every session.",
+"4. Arnold Split": "Frequency: 3-6 days/wk. Best For: Intermediate/Advanced bodybuilders. Pairs chest/back, shoulders/arms, and legs for massive pumps.",
+"5. Bro Split": "Frequency: 5 days/wk. Best For: Bodybuilding enthusiasts. Dedicates each day to a single muscle group for deep session fatigue.",
+"6. Upper / Lower / PPL Hybrid": "Frequency: 5 days/wk. Best For: Intermediates seeking structural variety combining upper/lower with PPL.",
+"7. PHUL": "Frequency: 4 days/wk. Best For: Strength & hypertrophy simultaneously (2 power days, 2 hypertrophy accessory days).",
+"8. PH3": "Frequency: 3 heavy days/wk by Layne Norton. Best For: Advanced power-builders focusing heavily on squat, bench, and deadlift.",
+"9. Upper / Lower / Full Body": "Frequency: 3-4 days/wk. Best For: Flexible intermediate scheduling.",
+"10. Antagonistic Super-Set Split": "Frequency: 4-5 days/wk. Best For: Time-efficient conditioning grouping opposing muscle groups (chest/back, quads/hams)."
+};
 
-        // ==========================================
-        // 3. AUTHENTICATION & NAVIGATION
-        // ==========================================
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                loginScreen.classList.add('hidden');
-                mainApp.classList.remove('hidden');
-                document.getElementById('display-email').textContent = user.email;
-                document.getElementById('display-uid').textContent = user.uid;
+document.getElementById('primary-activity').addEventListener('change', (e) => {
+const val = e.target.value;
+const descBox = document.getElementById('split-description');
+const otherBox = document.getElementById('other-activity-container');
 
-                if (user.uid === ADMIN_UID) {
-                    adminTabBtn.classList.remove('hidden');
-                }
+if(val === 'Other') {
+otherBox.classList.remove('hidden');
+descBox.textContent = "Custom AI Prompt mode selected. Enter your unique training focus below.";
+} else {
+otherBox.classList.add('hidden');
+descBox.textContent = splitDescriptions[val] || '';
+}
+});
+document.getElementById('primary-activity').dispatchEvent(new Event('change'));
 
-                await loadUserProfile();
-                await loadUserPlan();
-                
-                if(!currentProfileData || !currentProfileData.firstName) {
-                    switchTab('profile-tab');
-                } else {
-                    switchTab('dashboard-tab');
-                }
-            } else {
-                currentUser = null;
-                loginScreen.classList.remove('hidden');
-                mainApp.classList.add('hidden');
-            }
-        });
+// ==========================================
+// 3. AUTHENTICATION & NAVIGATION
+// ==========================================
+onAuthStateChanged(auth, async (user) => {
+if (user) {
+currentUser = user;
+loginScreen.classList.add('hidden');
+mainApp.classList.remove('hidden');
+document.getElementById('display-email').textContent = user.email;
+document.getElementById('display-uid').textContent = user.uid;
 
-        document.getElementById('login-btn').addEventListener('click', () => {
-            const e = document.getElementById('auth-email').value;
-            const p = document.getElementById('auth-password').value;
-            signInWithEmailAndPassword(auth, e, p).catch(err => showError(err.message));
-        });
+if (user.uid === ADMIN_UID) {
+adminTabBtn.classList.remove('hidden');
+}
 
-        document.getElementById('register-btn').addEventListener('click', () => {
-            const e = document.getElementById('auth-email').value;
-            const p = document.getElementById('auth-password').value;
-            createUserWithEmailAndPassword(auth, e, p).catch(err => showError(err.message));
-        });
+await loadUserProfile();
+await loadUserPlan();
 
-        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+if(!currentProfileData || !currentProfileData.firstName) {
+switchTab('profile-tab');
+} else {
+switchTab('dashboard-tab');
+}
+} else {
+currentUser = null;
+loginScreen.classList.remove('hidden');
+mainApp.classList.add('hidden');
+}
+});
 
-        function showError(msg) {
-            authError.textContent = msg;
-            authError.classList.remove('hidden');
-        }
+document.getElementById('login-btn').addEventListener('click', () => {
+const e = document.getElementById('auth-email').value;
+const p = document.getElementById('auth-password').value;
+signInWithEmailAndPassword(auth, e, p).catch(err => showError(err.message));
+});
 
-        function triggerAdminLogin() {
-            const e = prompt("Admin Email:");
-            if(!e) return;
-            const p = prompt("Admin Password:");
-            if(!p) return;
-            signInWithEmailAndPassword(auth, e, p).catch(err => alert("Admin login failed."));
-        }
-        document.getElementById('secret-admin-lock').addEventListener('click', triggerAdminLogin);
-        document.getElementById('app-title').addEventListener('dblclick', triggerAdminLogin);
+document.getElementById('register-btn').addEventListener('click', () => {
+const e = document.getElementById('auth-email').value;
+const p = document.getElementById('auth-password').value;
+createUserWithEmailAndPassword(auth, e, p).catch(err => showError(err.message));
+});
 
-        window.switchTab = function(tabId) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'text-blue-500'));
-            
-            document.getElementById(tabId).classList.remove('hidden');
-            const btn = document.querySelector(`[data-target="${tabId}"]`);
-            if(btn) {
-                btn.classList.add('active', 'text-blue-500');
-                btn.classList.remove('text-slate-400');
-            }
+document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
 
-            if(tabId === 'admin-tab') loadAdminData();
-        };
+function showError(msg) {
+authError.textContent = msg;
+authError.classList.remove('hidden');
+}
 
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => switchTab(e.target.dataset.target));
-        });
+function triggerAdminLogin() {
+const e = prompt("Admin Email:");
+if(!e) return;
+const p = prompt("Admin Password:");
+if(!p) return;
+signInWithEmailAndPassword(auth, e, p).catch(err => alert("Admin login failed."));
+}
+document.getElementById('secret-admin-lock').addEventListener('click', triggerAdminLogin);
+document.getElementById('app-title').addEventListener('dblclick', triggerAdminLogin);
 
-        // ==========================================
-        // 4. USER PROFILE & METRICS
-        // ==========================================
-        async function loadUserProfile() {
-            try {
-                const docSnap = await getDoc(doc(db, "users", currentUser.uid));
-                if (docSnap.exists()) {
-                    currentProfileData = docSnap.data();
-                    const d = currentProfileData;
-                    
-                    document.getElementById('prof-first-name').value = d.firstName || '';
-                    document.getElementById('prof-last-name').value = d.lastName || '';
-                    document.getElementById('prof-dob').value = d.dob || '';
-                    document.getElementById('prof-gender').value = d.gender || 'Male';
-                    document.getElementById('prof-height-ft').value = d.heightFt || '';
-                    document.getElementById('prof-height-in').value = d.heightIn || '';
-                    document.getElementById('prof-weight').value = d.weight || '';
-                    document.getElementById('prof-waist').value = d.waist || '';
-                    
-                    calculateMetrics();
-                }
-            } catch(e) { console.error("Error loading profile", e); }
-        }
+window.switchTab = function(tabId) {
+document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'text-blue-500'));
 
-        function calculateMetrics() {
-            const dob = document.getElementById('prof-dob').value;
-            if(dob) {
-                const birthDate = new Date(dob);
-                const age = new Date().getFullYear() - birthDate.getFullYear();
-                document.getElementById('display-age').textContent = age;
-            }
+document.getElementById(tabId).classList.remove('hidden');
+const btn = document.querySelector(`[data-target="${tabId}"]`);
+if(btn) {
+btn.classList.add('active', 'text-blue-500');
+btn.classList.remove('text-slate-400');
+}
 
-            const ft = parseInt(document.getElementById('prof-height-ft').value) || 0;
-            const inch = parseInt(document.getElementById('prof-height-in').value) || 0;
-            const weight = parseFloat(document.getElementById('prof-weight').value) || 0;
-            
-            if(weight > 0 && (ft > 0 || inch > 0)) {
-                const totalInches = (ft * 12) + inch;
-                const bmi = (weight / (totalInches * totalInches)) * 703;
-                document.getElementById('display-bmi').textContent = bmi.toFixed(1);
-            }
-        }
+if(tabId === 'admin-tab') loadAdminData();
+};
 
-        ['prof-dob', 'prof-height-ft', 'prof-height-in', 'prof-weight'].forEach(id => {
-            document.getElementById(id).addEventListener('input', calculateMetrics);
-        });
+document.querySelectorAll('.tab-btn').forEach(btn => {
+btn.addEventListener('click', (e) => switchTab(e.target.dataset.target));
+});
 
-        document.getElementById('save-profile-btn').addEventListener('click', async () => {
-            if(!currentUser) return;
-            const btn = document.getElementById('save-profile-btn');
-            const originalText = btn.textContent;
-            btn.textContent = "Saving Profile...";
+// ==========================================
+// 4. USER PROFILE & METRICS
+// ==========================================
+async function loadUserProfile() {
+try {
+const docSnap = await getDoc(doc(db, "users", currentUser.uid));
+if (docSnap.exists()) {
+currentProfileData = docSnap.data();
+const d = currentProfileData;
 
-            const data = {
-                firstName: document.getElementById('prof-first-name').value,
-                lastName: document.getElementById('prof-last-name').value,
-                dob: document.getElementById('prof-dob').value,
-                gender: document.getElementById('prof-gender').value,
-                heightFt: document.getElementById('prof-height-ft').value,
-                heightIn: document.getElementById('prof-height-in').value,
-                weight: document.getElementById('prof-weight').value,
-                waist: document.getElementById('prof-waist').value,
-                email: currentUser.email,
-                lastUpdated: new Date().toISOString()
-            };
+document.getElementById('prof-first-name').value = d.firstName || '';
+document.getElementById('prof-last-name').value = d.lastName || '';
+document.getElementById('prof-dob').value = d.dob || '';
+document.getElementById('prof-gender').value = d.gender || 'Male';
+document.getElementById('prof-height-ft').value = d.heightFt || '';
+document.getElementById('prof-height-in').value = d.heightIn || '';
+document.getElementById('prof-weight').value = d.weight || '';
+document.getElementById('prof-waist').value = d.waist || '';
 
-            try {
-                await setDoc(doc(db, "users", currentUser.uid), data, { merge: true });
-                currentProfileData = data;
-                
-                const msg = document.getElementById('profile-msg');
-                msg.textContent = "Profile updated! Redirecting to Plan Setup...";
-                msg.className = "text-green-400 text-sm mt-3 text-center";
-                msg.classList.remove('hidden');
-                
-                setTimeout(() => {
-                    msg.classList.add('hidden');
-                    btn.textContent = originalText;
-                    switchTab('plan-setup-tab');
-                }, 1500);
+calculateMetrics();
+}
+} catch(e) { console.error("Error loading profile", e); }
+}
 
-            } catch (error) {
-                console.error("Save Error:", error);
-                const msg = document.getElementById('profile-msg');
-                msg.textContent = "Error: Database blocked the save! Check Firestore Rules.";
-                msg.className = "text-red-500 font-bold text-sm mt-3 text-center";
-                msg.classList.remove('hidden');
-                btn.textContent = originalText;
-            }
-        });
+function calculateMetrics() {
+const dob = document.getElementById('prof-dob').value;
+if(dob) {
+const birthDate = new Date(dob);
+const age = new Date().getFullYear() - birthDate.getFullYear();
+document.getElementById('display-age').textContent = age;
+}
 
-        // ==========================================
-        // 5. PLAN SETUP FORM LOGIC
-        // ==========================================
-        document.querySelectorAll('input[name="goal_type"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                const val = e.target.value;
-                const taperWarning = document.getElementById('taper-warning');
-                const endDateLabel = document.getElementById('end-date-label');
-                const endDateInput = document.getElementById('end-date');
+const ft = parseInt(document.getElementById('prof-height-ft').value) || 0;
+const inch = parseInt(document.getElementById('prof-height-in').value) || 0;
+const weight = parseFloat(document.getElementById('prof-weight').value) || 0;
 
-                if(val === 'competition') {
-                    taperWarning.classList.remove('hidden');
-                    endDateLabel.textContent = "Date of Competition";
-                    endDateInput.classList.add('border-amber-500');
-                } else {
-                    taperWarning.classList.add('hidden');
-                    endDateInput.classList.remove('border-amber-500');
-                    if(val === 'general') {
-                        endDateLabel.textContent = "Target End Date (12 Weeks)";
-                        calculate12Weeks();
-                    } else {
-                        endDateLabel.textContent = "Target End Date";
-                    }
-                }
-            });
-        });
+if(weight > 0 && (ft > 0 || inch > 0)) {
+const totalInches = (ft * 12) + inch;
+const bmi = (weight / (totalInches * totalInches)) * 703;
+document.getElementById('display-bmi').textContent = bmi.toFixed(1);
+}
+}
 
-        function calculate12Weeks() {
-            const goalType = document.querySelector('input[name="goal_type"]:checked').value;
-            const startDateStr = document.getElementById('start-date').value;
-            
-            if(goalType === 'general' && startDateStr) {
-                const startDate = new Date(startDateStr);
-                startDate.setDate(startDate.getDate() + 84);
-                document.getElementById('end-date').value = startDate.toISOString().split('T')[0];
-            }
-        }
-        document.getElementById('start-date').addEventListener('change', calculate12Weeks);
+['prof-dob', 'prof-height-ft', 'prof-height-in', 'prof-weight'].forEach(id => {
+document.getElementById(id).addEventListener('input', calculateMetrics);
+});
 
-        // ==========================================
-        // 6. PLAN GENERATION & PREVIEW (RP SCIENCE)
-        // ==========================================
-        document.getElementById('generate-plan-btn').addEventListener('click', async () => {
-            const statusMsg = document.getElementById('generator-status');
-            statusMsg.textContent = "Analyzing RP hypertrophy volume landmarks...";
-            statusMsg.className = "text-sm mt-3 text-blue-400";
-            
-            const checkedFocus = Array.from(document.querySelectorAll('input[name="focus"]:checked')).map(cb => cb.value);
-            let splitChoice = document.getElementById('primary-activity').value;
-            if(splitChoice === 'Other') splitChoice = document.getElementById('other-activity-text').value;
-            
-            const goalType = document.querySelector('input[name="goal_type"]:checked').value;
-            const avoidText = document.getElementById('avoid-exercises').value;
-            const repStyle = document.getElementById('rep-style').value;
-            const daysPerWeek = document.getElementById('training-days').value;
-            const equipment = document.getElementById('equipment').value;
-            
-            const weight = document.getElementById('prof-weight').value || "unknown";
-            const age = document.getElementById('display-age').textContent !== '--' ? document.getElementById('display-age').textContent : "unknown";
+document.getElementById('save-profile-btn').addEventListener('click', async () => {
+if(!currentUser) return;
+const btn = document.getElementById('save-profile-btn');
+const originalText = btn.textContent;
+btn.textContent = "Saving Profile...";
 
-            let promptText = `
-                Act as an elite exercise scientist following Dr. Mike Israetel (Renaissance Periodization). Create a JSON format workout plan for a ${age} yr old weighing ${weight}lbs using the gym split: "${splitChoice}".
-                Primary Focus: ${checkedFocus.join(', ')}. Equipment Available: ${equipment}.
-                Training Days per week: ${daysPerWeek}. Goal Type: ${goalType}.
-                Rep Range Distribution Style: ${repStyle}.
-                
-                CRITICAL SCIENTIFIC RULES FOR HYPERTROPHY:
-                1. STRICTLY ENFORCE DR. MIKE ISRAETEL'S REP RANGES:
-                   - 5-10 reps for heavy compound exercises (mechanical tension, compounds like squats/bench/rows).
-                   - 10-20 reps as the sweet spot golden distribution backbone for bodybuilding movements.
-                   - 20-30 reps for isolation and pump work (lateral raises, curls, extensions).
-                   - NEVER use 1-4 rep ranges.
-                2. INCLUDE RIR (Reps in Reserve) PROGRESSION NOTES inside exercise names or descriptions across 4 weeks (Week 1 ~3 RIR, Week 2 ~2 RIR, Week 3 ~1 RIR, Week 4 Peak 0-1 RIR).
-                3. STRICT AVOID LIST (DO NOT INCLUDE THESE UNDER ANY CIRCUMSTANCES): ${avoidText}.
-                
-                Respond ONLY with a valid JSON object matching this exact structure:
-                {
-                  "planName": "${splitChoice} (RP Hypertrophy System)",
-                  "weeks": [
-                    {
-                      "weekNumber": 1,
-                      "days": [
-                        { "dayName": "Day 1", "focus": "Upper Body / Push", "exercises": ["Barbell Bench Press (5-10 reps @ 3 RIR) 3x", "Incline Dumbbell Press (10-20 reps @ 3 RIR) 3x"] }
-                      ]
-                    }
-                  ]
-                }
-                Make it 4 weeks long.
-            `;
+const data = {
+firstName: document.getElementById('prof-first-name').value,
+lastName: document.getElementById('prof-last-name').value,
+dob: document.getElementById('prof-dob').value,
+gender: document.getElementById('prof-gender').value,
+heightFt: document.getElementById('prof-height-ft').value,
+heightIn: document.getElementById('prof-height-in').value,
+weight: document.getElementById('prof-weight').value,
+waist: document.getElementById('prof-waist').value,
+email: currentUser.email,
+lastUpdated: new Date().toISOString()
+};
 
-            try {
-                if (GEMINI_API_KEY && GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY_HERE') {
-                    statusMsg.textContent = "AI is drafting your custom RP 2026 split schedule (10-15s)...";
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-                    });
-                    
-                    if(!response.ok) throw new Error("AI API failed");
-                    const data = await response.json();
-                    let rawText = data.candidates[0].content.parts[0].text;
-                    
-                    rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-                    stagedPlan = JSON.parse(rawText);
-                } else {
-                    statusMsg.textContent = "No API Key detected. Generating RP Fallback Plan...";
-                    stagedPlan = generateFallbackPlan(splitChoice, checkedFocus, avoidText, daysPerWeek);
-                }
+try {
+await setDoc(doc(db, "users", currentUser.uid), data, { merge: true });
+currentProfileData = data;
 
-                statusMsg.textContent = "Plan staged! Redirecting to preview...";
-                startPreviewMode();
+const msg = document.getElementById('profile-msg');
+msg.textContent = "Profile updated! Redirecting to Plan Setup...";
+msg.className = "text-green-400 text-sm mt-3 text-center";
+msg.classList.remove('hidden');
 
-            } catch (err) {
-                console.error(err);
-                statusMsg.textContent = "Error generating plan. Check console.";
-                statusMsg.className = "text-sm mt-3 text-red-500";
-            }
-        });
+setTimeout(() => {
+msg.classList.add('hidden');
+btn.textContent = originalText;
+switchTab('plan-setup-tab');
+}, 1500);
 
-        function generateFallbackPlan(splitChoice, focus, avoidText, days) {
-            const avoids = avoidText.toLowerCase();
-            const safeSquat = avoids.includes('squat') ? 'Leg Press (10-20 reps @ 3 RIR)' : 'Barbell Squat (5-10 reps @ 3 RIR)';
-            const safeDeadlift = avoids.includes('deadlift') ? 'Glute Ham Raise (10-20 reps @ 3 RIR)' : 'Deadlift (5-10 reps @ 3 RIR)';
-            
-            return {
-                planName: `RP Fallback: ${splitChoice}`,
-                weeks: [
-                    {
-                        weekNumber: 1,
-                        days: [
-                            { dayName: "Day 1", focus: "Lower Body (MEV Volume)", exercises: [`${safeSquat} 3x`, `${safeDeadlift} 3x`, "Leg Extensions (20-30 reps @ 3 RIR) 3x"] },
-                            { dayName: "Day 2", focus: "Upper Body (MEV Volume)", exercises: ["Bench Press (5-10 reps @ 3 RIR) 3x", "Pullups (10-20 reps @ 3 RIR) 3x", "Dumbbell Lateral Raises (20-30 reps @ 3 RIR) 4x"] }
-                        ]
-                    }
-                ]
-            };
-        }
+} catch (error) {
+console.error("Save Error:", error);
+const msg = document.getElementById('profile-msg');
+msg.textContent = "Error: Database blocked the save! Check Firestore Rules.";
+msg.className = "text-red-500 font-bold text-sm mt-3 text-center";
+msg.classList.remove('hidden');
+btn.textContent = originalText;
+}
+});
 
-        function startPreviewMode() {
-            previewBanner.classList.remove('hidden');
-            switchTab('dashboard-tab');
-            renderPlanToUI(stagedPlan, true);
-            
-            previewTimeLeft = 600;
-            clearInterval(previewTimerInterval);
-            
-            previewTimerInterval = setInterval(() => {
-                previewTimeLeft--;
-                const min = Math.floor(previewTimeLeft / 60);
-                const sec = previewTimeLeft % 60;
-                document.getElementById('preview-timer').textContent = `${min}:${sec < 10 ? '0':''}${sec}`;
-                
-                if(previewTimeLeft <= 0) discardPlan();
-            }, 1000);
-        }
+// ==========================================
+// 5. PLAN SETUP FORM LOGIC
+// ==========================================
+document.querySelectorAll('input[name="goal_type"]').forEach(radio => {
+radio.addEventListener('change', (e) => {
+const val = e.target.value;
+const taperWarning = document.getElementById('taper-warning');
+const endDateLabel = document.getElementById('end-date-label');
+const endDateInput = document.getElementById('end-date');
 
-        document.getElementById('save-plan-btn').addEventListener('click', async () => {
-            clearInterval(previewTimerInterval);
-            previewBanner.classList.add('hidden');
-            
-            stagedPlan.timestamp = new Date().toISOString();
-            await setDoc(doc(db, "plans", currentUser.uid), stagedPlan);
-            
-            renderPlanToUI(stagedPlan, false);
-            stagedPlan = null;
-        });
+if(val === 'competition') {
+taperWarning.classList.remove('hidden');
+endDateLabel.textContent = "Date of Competition";
+endDateInput.classList.add('border-amber-500');
+} else {
+taperWarning.classList.add('hidden');
+endDateInput.classList.remove('border-amber-500');
+if(val === 'general') {
+endDateLabel.textContent = "Target End Date (12 Weeks)";
+calculate12Weeks();
+} else {
+endDateLabel.textContent = "Target End Date";
+}
+}
+});
+});
 
-        document.getElementById('discard-plan-btn').addEventListener('click', discardPlan);
+function calculate12Weeks() {
+const goalType = document.querySelector('input[name="goal_type"]:checked').value;
+const startDateStr = document.getElementById('start-date').value;
 
-        function discardPlan() {
-            clearInterval(previewTimerInterval);
-            previewBanner.classList.add('hidden');
-            stagedPlan = null;
-            
-            const statusMsg = document.getElementById('generator-status');
-            if (statusMsg) {
-                statusMsg.textContent = "";
-                statusMsg.className = "text-sm mt-3 text-slate-400";
-            }
-            
-            switchTab('plan-setup-tab');
-            loadUserPlan(); 
-        }
+if(goalType === 'general' && startDateStr) {
+const startDate = new Date(startDateStr);
+startDate.setDate(startDate.getDate() + 84);
+document.getElementById('end-date').value = startDate.toISOString().split('T')[0];
+}
+}
+document.getElementById('start-date').addEventListener('change', calculate12Weeks);
 
-        // ==========================================
-        // 7. RENDER DASHBOARD & ADMIN AREA
-        // ==========================================
-        async function loadUserPlan() {
-            try {
-                const docSnap = await getDoc(doc(db, "plans", currentUser.uid));
-                if (docSnap.exists()) {
-                    renderPlanToUI(docSnap.data(), false);
-                } else {
-                    document.getElementById('no-plan-state').classList.remove('hidden');
-                    document.getElementById('plan-container').innerHTML = '';
-                    document.getElementById('dashboard-subtitle').textContent = '';
-                }
-            } catch(e) { console.error("Error loading plan", e); }
-        }
+// ==========================================
+// 6. PLAN GENERATION & PREVIEW (RP SCIENCE)
+// ==========================================
+document.getElementById('generate-plan-btn').addEventListener('click', async () => {
+const statusMsg = document.getElementById('generator-status');
+statusMsg.textContent = "Analyzing RP hypertrophy volume landmarks...";
+statusMsg.className = "text-sm mt-3 text-blue-400";
 
-        function renderPlanToUI(planData, isPreview) {
-            document.getElementById('no-plan-state').classList.add('hidden');
-            document.getElementById('dashboard-subtitle').textContent = isPreview ? "PREVIEW MODE - NOT SAVED" : `Started on: ${new Date(planData.timestamp || Date.now()).toLocaleDateString()}`;
-            
-            const container = document.getElementById('plan-container');
-            let html = `<h3 class="text-2xl font-bold text-blue-400 mb-4">${planData.planName}</h3>`;
-            
-            planData.weeks.forEach(week => {
-                html += `
-                <div class="card mb-6 border-l-4 border-l-blue-500">
-                    <h4 class="text-xl font-bold mb-4">Week ${week.weekNumber}</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                `;
-                
-                week.days.forEach(day => {
-                    html += `
-                        <div class="bg-slate-800 p-4 rounded-lg">
-                            <div class="font-bold text-emerald-400 border-b border-slate-700 pb-2 mb-2">${day.dayName}</div>
-                            <div class="text-xs text-slate-400 uppercase tracking-wider mb-3">${day.focus}</div>
-                            <ul class="text-sm space-y-2">
-                                ${day.exercises.map(ex => `<li class="flex items-start"><i class="fa-solid fa-check text-slate-600 mt-1 mr-2"></i> <span>${ex}</span></li>`).join('')}
-                            </ul>
-                        </div>
-                    `;
-                });
-                
-                html += `</div></div>`;
-            });
-            
-            container.innerHTML = html;
-        }
+const checkedFocus = Array.from(document.querySelectorAll('input[name="focus"]:checked')).map(cb => cb.value);
+let splitChoice = document.getElementById('primary-activity').value;
+if(splitChoice === 'Other') splitChoice = document.getElementById('other-activity-text').value;
 
-        async function loadAdminData() {
-            if(!currentUser || currentUser.uid !== ADMIN_UID) return;
-            
-            try {
-                const usersSnap = await getDocs(collection(db, "users"));
-                const plansSnap = await getDocs(collection(db, "plans"));
-                
-                document.getElementById('admin-total-users').textContent = usersSnap.size;
-                document.getElementById('admin-total-plans').textContent = plansSnap.size;
-                
-                const tbody = document.getElementById('admin-users-list');
-                tbody.innerHTML = '';
-                
-                usersSnap.forEach(doc => {
-                    const u = doc.data();
-                    const heightStr = u.heightFt ? `${u.heightFt}'${u.heightIn}"` : '--';
-                    const weightStr = u.weight ? `${u.weight} lbs` : '--';
-                    const waistStr = u.waist ? `${u.waist}"` : '--';
-                    
-                    let bmi = '--';
-                    if(u.weight && u.heightFt) {
-                        const totalInches = (parseInt(u.heightFt) * 12) + (parseInt(u.heightIn) || 0);
-                        bmi = ((parseFloat(u.weight) / (totalInches * totalInches)) * 703).toFixed(1);
-                    }
+const goalType = document.querySelector('input[name="goal_type"]:checked').value;
+const avoidText = document.getElementById('avoid-exercises').value;
+const repStyle = document.getElementById('rep-style').value;
+const daysPerWeek = document.getElementById('training-days').value;
+const equipment = document.getElementById('equipment').value;
 
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-slate-800 transition-colors">
-                            <td class="py-3 font-bold">${u.firstName || 'Unknown'} ${u.lastName || ''}</td>
-                            <td class="py-3 text-slate-400">${u.email}</td>
-                            <td class="py-3">${heightStr} / ${weightStr} / ${waistStr}</td>
-                            <td class="py-3 font-mono text-emerald-400">${bmi}</td>
-                            <td class="py-3">${u.gender || '--'}</td>
-                        </tr>
-                    `;
-                });
-            } catch(e) { console.error("Admin load failed", e); }
-        }
+const weight = document.getElementById('prof-weight').value || "unknown";
+const age = document.getElementById('display-age').textContent !== '--' ? document.getElementById('display-age').textContent : "unknown";
 
-        document.getElementById('admin-refresh-btn').addEventListener('click', loadAdminData);
+let promptText = `
+               Act as an elite exercise scientist following Dr. Mike Israetel (Renaissance Periodization). Create a JSON format workout plan for a ${age} yr old weighing ${weight}lbs using the gym split: "${splitChoice}".
+               Primary Focus: ${checkedFocus.join(', ')}. Equipment Available: ${equipment}.
+               Training Days per week: ${daysPerWeek}. Goal Type: ${goalType}.
+               Rep Range Distribution Style: ${repStyle}.
+               
+               CRITICAL SCIENTIFIC RULES FOR HYPERTROPHY:
+               1. STRICTLY ENFORCE DR. MIKE ISRAETEL'S REP RANGES:
+                  - 5-10 reps for heavy compound exercises (mechanical tension, compounds like squats/bench/rows).
+                  - 10-20 reps as the sweet spot golden distribution backbone for bodybuilding movements.
+                  - 20-30 reps for isolation and pump work (lateral raises, curls, extensions).
+                  - NEVER use 1-4 rep ranges.
+               2. INCLUDE RIR (Reps in Reserve) PROGRESSION NOTES inside exercise names or descriptions across 4 weeks (Week 1 ~3 RIR, Week 2 ~2 RIR, Week 3 ~1 RIR, Week 4 Peak 0-1 RIR).
+               3. STRICT AVOID LIST (DO NOT INCLUDE THESE UNDER ANY CIRCUMSTANCES): ${avoidText}.
+               
+               Respond ONLY with a valid JSON object matching this exact structure:
+               {
+                 "planName": "${splitChoice} (RP Hypertrophy System)",
+                 "weeks": [
+                   {
+                     "weekNumber": 1,
+                     "days": [
+                       { "dayName": "Day 1", "focus": "Upper Body / Push", "exercises": ["Barbell Bench Press (5-10 reps @ 3 RIR) 3x", "Incline Dumbbell Press (10-20 reps @ 3 RIR) 3x"] }
+                     ]
+                   }
+                 ]
+               }
+               Make it 4 weeks long.
+           `;
 
-    </script>
+try {
+if (GEMINI_API_KEY && GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY_HERE') {
+statusMsg.textContent = "AI is drafting your custom RP 2026 split schedule (10-15s)...";
+const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+});
+
+if(!response.ok) throw new Error("AI API failed");
+const data = await response.json();
+let rawText = data.candidates[0].content.parts[0].text;
+
+rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+stagedPlan = JSON.parse(rawText);
+} else {
+statusMsg.textContent = "No API Key detected. Generating RP Fallback Plan...";
+stagedPlan = generateFallbackPlan(splitChoice, checkedFocus, avoidText, daysPerWeek);
+}
+
+statusMsg.textContent = "Plan staged! Redirecting to preview...";
+startPreviewMode();
+
+} catch (err) {
+console.error(err);
+statusMsg.textContent = "Error generating plan. Check console.";
+statusMsg.className = "text-sm mt-3 text-red-500";
+}
+});
+
+function generateFallbackPlan(splitChoice, focus, avoidText, days) {
+const avoids = avoidText.toLowerCase();
+const safeSquat = avoids.includes('squat') ? 'Leg Press (10-20 reps @ 3 RIR)' : 'Barbell Squat (5-10 reps @ 3 RIR)';
+const safeDeadlift = avoids.includes('deadlift') ? 'Glute Ham Raise (10-20 reps @ 3 RIR)' : 'Deadlift (5-10 reps @ 3 RIR)';
+
+return {
+planName: `RP Fallback: ${splitChoice}`,
+weeks: [
+{
+weekNumber: 1,
+days: [
+{ dayName: "Day 1", focus: "Lower Body (MEV Volume)", exercises: [`${safeSquat} 3x`, `${safeDeadlift} 3x`, "Leg Extensions (20-30 reps @ 3 RIR) 3x"] },
+{ dayName: "Day 2", focus: "Upper Body (MEV Volume)", exercises: ["Bench Press (5-10 reps @ 3 RIR) 3x", "Pullups (10-20 reps @ 3 RIR) 3x", "Dumbbell Lateral Raises (20-30 reps @ 3 RIR) 4x"] }
+]
+}
+]
+};
+}
+
+function startPreviewMode() {
+previewBanner.classList.remove('hidden');
+switchTab('dashboard-tab');
+renderPlanToUI(stagedPlan, true);
+
+previewTimeLeft = 600;
+clearInterval(previewTimerInterval);
+
+previewTimerInterval = setInterval(() => {
+previewTimeLeft--;
+const min = Math.floor(previewTimeLeft / 60);
+const sec = previewTimeLeft % 60;
+document.getElementById('preview-timer').textContent = `${min}:${sec < 10 ? '0':''}${sec}`;
+
+if(previewTimeLeft <= 0) discardPlan();
+}, 1000);
+}
+
+document.getElementById('save-plan-btn').addEventListener('click', async () => {
+clearInterval(previewTimerInterval);
+previewBanner.classList.add('hidden');
+
+stagedPlan.timestamp = new Date().toISOString();
+await setDoc(doc(db, "plans", currentUser.uid), stagedPlan);
+
+renderPlanToUI(stagedPlan, false);
+stagedPlan = null;
+});
+
+document.getElementById('discard-plan-btn').addEventListener('click', discardPlan);
+
+function discardPlan() {
+clearInterval(previewTimerInterval);
+previewBanner.classList.add('hidden');
+stagedPlan = null;
+
+const statusMsg = document.getElementById('generator-status');
+if (statusMsg) {
+statusMsg.textContent = "";
+statusMsg.className = "text-sm mt-3 text-slate-400";
+}
+
+switchTab('plan-setup-tab');
+loadUserPlan(); 
+}
+
+// ==========================================
+// 7. RENDER DASHBOARD & ADMIN AREA
+// ==========================================
+async function loadUserPlan() {
+try {
+const docSnap = await getDoc(doc(db, "plans", currentUser.uid));
+if (docSnap.exists()) {
+renderPlanToUI(docSnap.data(), false);
+} else {
+document.getElementById('no-plan-state').classList.remove('hidden');
+document.getElementById('plan-container').innerHTML = '';
+document.getElementById('dashboard-subtitle').textContent = '';
+}
+} catch(e) { console.error("Error loading plan", e); }
+}
+
+function renderPlanToUI(planData, isPreview) {
+document.getElementById('no-plan-state').classList.add('hidden');
+document.getElementById('dashboard-subtitle').textContent = isPreview ? "PREVIEW MODE - NOT SAVED" : `Started on: ${new Date(planData.timestamp || Date.now()).toLocaleDateString()}`;
+
+const container = document.getElementById('plan-container');
+let html = `<h3 class="text-2xl font-bold text-blue-400 mb-4">${planData.planName}</h3>`;
+
+planData.weeks.forEach(week => {
+html += `
+               <div class="card mb-6 border-l-4 border-l-blue-500">
+                   <h4 class="text-xl font-bold mb-4">Week ${week.weekNumber}</h4>
+                   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+               `;
+
+week.days.forEach(day => {
+html += `
+                       <div class="bg-slate-800 p-4 rounded-lg">
+                           <div class="font-bold text-emerald-400 border-b border-slate-700 pb-2 mb-2">${day.dayName}</div>
+                           <div class="text-xs text-slate-400 uppercase tracking-wider mb-3">${day.focus}</div>
+                           <ul class="text-sm space-y-2">
+                               ${day.exercises.map(ex => `<li class="flex items-start"><i class="fa-solid fa-check text-slate-600 mt-1 mr-2"></i> <span>${ex}</span></li>`).join('')}
+                           </ul>
+                       </div>
+                   `;
+});
+
+html += `</div></div>`;
+});
+
+container.innerHTML = html;
+}
+
+async function loadAdminData() {
+if(!currentUser || currentUser.uid !== ADMIN_UID) return;
+
+try {
+const usersSnap = await getDocs(collection(db, "users"));
+const plansSnap = await getDocs(collection(db, "plans"));
+
+document.getElementById('admin-total-users').textContent = usersSnap.size;
+document.getElementById('admin-total-plans').textContent = plansSnap.size;
+
+const tbody = document.getElementById('admin-users-list');
+tbody.innerHTML = '';
+
+usersSnap.forEach(doc => {
+const u = doc.data();
+const heightStr = u.heightFt ? `${u.heightFt}'${u.heightIn}"` : '--';
+const weightStr = u.weight ? `${u.weight} lbs` : '--';
+const waistStr = u.waist ? `${u.waist}"` : '--';
+
+let bmi = '--';
+if(u.weight && u.heightFt) {
+const totalInches = (parseInt(u.heightFt) * 12) + (parseInt(u.heightIn) || 0);
+bmi = ((parseFloat(u.weight) / (totalInches * totalInches)) * 703).toFixed(1);
+}
+
+tbody.innerHTML += `
+                       <tr class="hover:bg-slate-800 transition-colors">
+                           <td class="py-3 font-bold">${u.firstName || 'Unknown'} ${u.lastName || ''}</td>
+                           <td class="py-3 text-slate-400">${u.email}</td>
+                           <td class="py-3">${heightStr} / ${weightStr} / ${waistStr}</td>
+                           <td class="py-3 font-mono text-emerald-400">${bmi}</td>
+                           <td class="py-3">${u.gender || '--'}</td>
+                       </tr>
+                   `;
+});
+} catch(e) { console.error("Admin load failed", e); }
+}
+
+document.getElementById('admin-refresh-btn').addEventListener('click', loadAdminData);
+
+</script>
 </body>
 </html>
