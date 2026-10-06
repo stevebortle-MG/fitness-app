@@ -351,18 +351,25 @@
                             </button>
                         </form>
                     </div>
+        // ==========================================
+        //  FIREBASE CONFIGURATION FOR LIVE HOSTING
+        // ==========================================
+        // 1. Go to console.firebase.google.com and locate your web app.
+        // 2. Enable Authentication (Email/Password) and Firestore Database.
+        // 3. Add your actual Web API Key and App ID below:
+        const firebaseConfig = {
+            apiKey: "YOUR_ACTUAL_WEB_API_KEY", // Copy from Project Settings in Console
+            authDomain: "warrior-fitness-app.firebaseapp.com",
+            projectId: "warrior-fitness-app",
+            storageBucket: "warrior-fitness-app.firebasestorage.app",
+            messagingSenderId: "597708121589", // Pre-populated!
+            appId: "YOUR_ACTUAL_WEB_APP_ID" // Copy from Project Settings in Console
+        };
 
-                    <!-- History Feed -->
-                    <div class="card-bg rounded-2xl p-6 shadow-xl border-t-4 border-slate-500 mt-6 relative overflow-hidden">
-                        <h2 class="text-xl font-bold mb-6 text-white border-b border-slate-700 pb-3">History Feed</h2>
-                        <div id="log-entries" class="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar relative z-10">
-                            <div id="empty-log-msg" class="text-center py-10 bg-slate-800/30 rounded-xl border border-slate-700/50 border-dashed">
-                                <svg class="w-12 h-12 text-slate-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <p class="text-slate-400 text-sm font-semibold">No workouts synced yet.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        //  ADMIN CONFIGURATION
+        const ADMIN_UID = 'YOUR_ADMIN_USER_UID_HERE'; // Replace after creating your admin account
+        // ==========================================
+
             </div>
 
             <div id="admin-view" class="hidden card-bg rounded-2xl p-6 md:p-8 shadow-2xl transition-all duration-500 fade-in border-t-4 border-amber-500">
