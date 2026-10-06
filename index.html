@@ -360,6 +360,24 @@
 
                 <!-- Training Plan List -->
                 <div id="plan-view" class="space-y-6 fade-in">
+                    
+                    <!-- STAGING BANNER -->
+                    <div id="staging-banner" class="hidden bg-amber-900/40 border border-amber-500 rounded-xl p-4 shadow-lg fade-in">
+                        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div>
+                                <h3 class="text-amber-400 font-bold text-lg flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Review Your New Plan
+                                </h3>
+                                <p class="text-slate-300 text-sm mt-1">This plan is not saved yet. It will expire and reset in <span id="plan-timer" class="font-mono font-bold text-amber-300 bg-amber-900/50 px-2 py-0.5 rounded">10:00</span>.</p>
+                            </div>
+                            <div class="flex space-x-3 w-full sm:w-auto">
+                                <button type="button" id="discard-plan-btn" class="flex-1 sm:flex-none px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-sm font-bold rounded-lg transition shadow-md">Discard</button>
+                                <button type="button" id="save-staged-plan-btn" class="flex-1 sm:flex-none px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white text-sm font-bold rounded-lg transition shadow-md shadow-emerald-500/20">Save Plan</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="card-bg rounded-2xl p-6 shadow-xl border-t-4 border-indigo-500">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-4 gap-4">
                             <div>
@@ -555,6 +573,10 @@
         let selectedActivities = [];
         let currentPlanData = [];
         let workoutLogs = [];
+        
+        let stagedPlanData = null;
+        let stagedPrimaryGoal = '';
+        let stagingTimerInterval = null;
 
         // Data Definitions
         const ALL_ACTIVITIES = [
@@ -1129,7 +1151,7 @@
                 promptInstruction += ` The user is training for a specific event on the final day. Ensure the final week scales intensity appropriately so they feel fresh.`;
             }
 
-            currentPlanData = [];
+            let tempPlanData = [];
             
             try {
                 // Call Gemini AI
@@ -1197,7 +1219,7 @@
                     
                     const dayData = aiPlan[i] || { title: 'Rest', desc: 'Active recovery or rest.', exercises: [] };
 
-                    currentPlanData.push({
+                    tempPlanData.push({
                         dateString: isoStr,
                         formattedDate: currentDate.toLocaleDateString(undefined, {weekday: 'short', month: 'short', day: 'numeric'}),
                         weekNum: weekNum,
@@ -1232,7 +1254,7 @@
                     const isLifting = workout.title.includes('Body') || workout.title.includes('Legs');
                     const generatedExercises = isLifting ? generateLiftingWorkout(workout.title, weekNum, avoid) : [];
 
-                    currentPlanData.push({
+                    tempPlanData.push({
                         dateString: isoStr,
                         formattedDate: currentDate.toLocaleDateString(undefined, {weekday: 'short', month: 'short', day: 'numeric'}),
                         weekNum: weekNum,
@@ -1243,26 +1265,91 @@
                 }
             }
 
-            if(currentUserId && !isLocalMode && typeof db !== 'undefined' && db) {
-                try {
-                    const planRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'config', 'currentPlan');
-                    await setDoc(planRef, { schedule: currentPlanData, primaryGoal: primaryGoal });
-                } catch(e) { console.error("Could not save plan to cloud", e); }
-            }
+            // STAGE THE PLAN INSTEAD OF SAVING IMMEDIATELY
+            stagedPlanData = tempPlanData;
+            stagedPrimaryGoal = primaryGoal;
+            
+            renderPlanToUI(stagedPlanData);
+            startStagingTimer();
 
-            renderPlanToUI();
             genBtn.innerHTML = originalBtnText;
             genBtn.disabled = false;
             
             switchTab('dash');
             document.getElementById('plan-view').classList.remove('hidden');
             document.getElementById('log-view').classList.add('hidden');
+        });
+
+        function startStagingTimer() {
+            clearInterval(stagingTimerInterval);
+            document.getElementById('staging-banner').classList.remove('hidden');
+            let timeLeft = 600; // 10 minutes
+            
+            const updateTimerDisplay = () => {
+                const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                const s = (timeLeft % 60).toString().padStart(2, '0');
+                document.getElementById('plan-timer').textContent = `${m}:${s}`;
+            };
+            
+            updateTimerDisplay();
+            
+            stagingTimerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    discardStagedPlan("Your generated plan expired after 10 minutes. Please generate a new one.");
+                }
+            }, 1000);
+        }
+
+        function discardStagedPlan(msg = null) {
+            clearInterval(stagingTimerInterval);
+            document.getElementById('staging-banner').classList.add('hidden');
+            stagedPlanData = null;
+            stagedPrimaryGoal = '';
+            
+            if (msg) alert(msg);
+            
+            if (currentPlanData && currentPlanData.length > 0) {
+                renderPlanToUI(currentPlanData);
+            } else {
+                renderPlanToUI([]); 
+            }
+        }
+
+        document.getElementById('discard-plan-btn').addEventListener('click', () => discardStagedPlan());
+
+        document.getElementById('save-staged-plan-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('save-staged-plan-btn');
+            const origText = btn.textContent;
+            btn.textContent = "Saving...";
+            btn.disabled = true;
+            
+            currentPlanData = stagedPlanData;
+            const primaryGoal = stagedPrimaryGoal;
+            
+            if(currentUserId && !isLocalMode && typeof db !== 'undefined' && db) {
+                try {
+                    const planRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'config', 'currentPlan');
+                    await setDoc(planRef, { schedule: currentPlanData, primaryGoal: primaryGoal });
+                } catch(e) { console.error("Could not save plan to cloud", e); }
+            }
+            
+            clearInterval(stagingTimerInterval);
+            document.getElementById('staging-banner').classList.add('hidden');
+            stagedPlanData = null;
+            stagedPrimaryGoal = '';
+            
+            btn.textContent = origText;
+            btn.disabled = false;
+            
+            renderPlanToUI(currentPlanData);
             
             try { document.getElementById('log-date').valueAsDate = new Date(); } catch(e){}
             syncLogWithPlan(document.getElementById('log-date').value);
         });
 
-        function renderPlanToUI() {
+        function renderPlanToUI(dataToRender = currentPlanData) {
             const container = document.getElementById('weekly-schedule');
             const emptyMsg = document.getElementById('no-plan-msg');
             const subtitle = document.getElementById('plan-subtitle');
@@ -1270,7 +1357,7 @@
 
             container.innerHTML = '';
             
-            if (currentPlanData.length === 0) {
+            if (!dataToRender || dataToRender.length === 0) {
                 emptyMsg.classList.remove('hidden');
                 subtitle.classList.add('hidden');
                 durationBox.classList.add('hidden');
@@ -1283,72 +1370,7 @@
 
             let currentWeek = 0;
 
-            currentPlanData.forEach(day => {
-                if (day.weekNum > currentWeek) {
-                    currentWeek = day.weekNum;
-                    container.innerHTML += `
-                        <div class="sticky top-0 bg-slate-800/95 backdrop-blur z-20 p-2 mt-4 mb-2 rounded border-b border-slate-600 flex justify-between shadow-md">
-                            <h3 class="text-sky-400 font-bold text-sm uppercase tracking-wide">Week ${currentWeek}</h3>
-                        </div>
-                    `;
-                }
-
-                let exPreview = '';
-                if (day.exercises && day.exercises.length > 0) {
-                    exPreview = '<div class="mt-2 pl-3 border-l-2 border-indigo-500/30 text-xs text-slate-300 space-y-1">';
-                    day.exercises.forEach(ex => {
-                        exPreview += `<div>• ${ex.exercise} <span class="text-slate-500 ml-1">(${ex.sets}x${ex.reps})</span></div>`;
-                    });
-                    exPreview += '</div>';
-                }
-
-                container.innerHTML += `
-                    <div class="flex flex-col sm:flex-row bg-slate-900/60 rounded-lg p-3 border-l-4 border-indigo-500 mb-2 shadow-sm">
-                        <div class="sm:w-32 font-bold text-indigo-300 text-sm mb-1 sm:mb-0 pt-0.5">${day.formattedDate}</div>
-                        <div class="flex-1">
-                            <div class="font-bold text-white text-base">${day.title}</div>
-                            <div class="text-slate-400 text-sm mt-1">${day.desc}</div>
-                            ${exPreview}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        document.getElementById('back-btn').addEventListener('click', () => switchTab('plan'));
-        document.getElementById('view-plan-btn').addEventListener('click', () => {
-            document.getElementById('plan-view').classList.remove('hidden');
-            document.getElementById('log-view').classList.add('hidden');
-            document.getElementById('view-plan-btn').classList.add('bg-indigo-600', 'text-white');
-            document.getElementById('view-log-btn').classList.remove('bg-indigo-600', 'text-white');
-        });
-        document.getElementById('view-log-btn').addEventListener('click', () => {
-            document.getElementById('log-view').classList.remove('hidden');
-            document.getElementById('plan-view').classList.add('hidden');
-            document.getElementById('view-log-btn').classList.add('bg-indigo-600', 'text-white');
-            document.getElementById('view-plan-btn').classList.remove('bg-indigo-600', 'text-white');
-        });
-
-        const logTypeSelect = document.getElementById('log-type');
-        const logSubtypeSelect = document.getElementById('log-subtype');
-        const logSubtypeContainer = document.getElementById('log-subtype-container');
-        const liftingExercisesContainer = document.getElementById('lifting-exercises-container');
-        const exerciseRowsContainer = document.getElementById('exercise-rows');
-
-        logTypeSelect.addEventListener('change', (e) => {
-            const val = e.target.value;
-            if (val === 'Cardio') {
-                logSubtypeContainer.classList.remove('hidden');
-                liftingExercisesContainer.classList.add('hidden');
-                logSubtypeSelect.innerHTML = cardioOptions;
-            } else if (val === 'Weight Lifting') {
-                logSubtypeContainer.classList.add('hidden');
-                liftingExercisesContainer.classList.remove('hidden');
-                if(exerciseRowsContainer.children.length === 0) addExerciseRow();
-            } else {
-                logSubtypeContainer.classList.add('hidden');
-                liftingExercisesContainer.classList.add('hidden');
-            }
+            dataToRender.forEach(day => {
         });
 
         document.getElementById('add-exercise-btn').addEventListener('click', () => addExerciseRow());
