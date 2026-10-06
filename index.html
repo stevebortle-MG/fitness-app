@@ -379,7 +379,7 @@
         const GEMINI_API_KEY = ''; // Leave blank to use built-in smart fallback template generator
 
         // ==========================================
-        // 2. INITIALIZATION
+        // 2. INITIALIZATION & AUTHENTICATION
         // ==========================================
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -398,9 +398,6 @@
         const adminTabBtn = document.getElementById('admin-tab-btn');
         const previewBanner = document.getElementById('preview-banner');
 
-        // ==========================================
-        // 3. AUTHENTICATION & SESSION MANAGEMENT
-        // ==========================================
         async function initAuth() {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -422,7 +419,6 @@
                 document.getElementById('display-email').textContent = user.email || 'Anonymous Warrior (' + user.uid.substring(0,6) + ')';
                 document.getElementById('display-uid').textContent = user.uid;
 
-                // Make first user or specific UID admin
                 if (user.uid === 'admin' || !user.isAnonymous) {
                     adminTabBtn.classList.remove('hidden');
                 }
@@ -480,13 +476,12 @@
         });
 
         // ==========================================
-        // 4. USER PROFILE & METRICS (RULE 1 PATHS)
+        // 3. USER PROFILE & METRICS (SECURE FIRESTORE PATHS)
         // ==========================================
         async function loadUserProfile() {
             if(!auth.currentUser) return;
             const userId = auth.currentUser.uid;
             try {
-                // Rule 1: /artifacts/{appId}/users/{userId}/{collectionName}
                 const docRef = doc(db, "artifacts", appId, "users", userId, "profile", "data");
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
@@ -534,7 +529,10 @@
         document.getElementById('save-profile-btn').addEventListener('click', async () => {
             if(!auth.currentUser) return;
             const userId = auth.currentUser.uid;
-            
+            const btn = document.getElementById('save-profile-btn');
+            const originalText = btn.textContent;
+            btn.textContent = "Saving Profile...";
+
             const data = {
                 firstName: document.getElementById('prof-first-name').value,
                 lastName: document.getElementById('prof-last-name').value,
@@ -549,24 +547,33 @@
             };
 
             try {
-                // Save to private user subcollection
                 await setDoc(doc(db, "artifacts", appId, "users", userId, "profile", "data"), data, { merge: true });
-                // Also mirror to public data collection for admin view (Rule 1 public path)
                 await setDoc(doc(db, "artifacts", appId, "public", "data", "users", userId), data, { merge: true });
                 
                 currentProfileData = data;
                 
                 const msg = document.getElementById('profile-msg');
+                msg.textContent = "Profile updated! Redirecting to Plan Setup...";
+                msg.className = "text-green-400 text-sm mt-3 text-center";
                 msg.classList.remove('hidden');
-                setTimeout(() => msg.classList.add('hidden'), 3000);
+                
+                setTimeout(() => {
+                    msg.classList.add('hidden');
+                    btn.textContent = originalText;
+                    switchTab('plan-setup-tab');
+                }, 1500);
             } catch(err) {
                 console.error("Failed to save profile:", err);
-                alert("Error saving profile. Check console.");
+                const msg = document.getElementById('profile-msg');
+                msg.textContent = "Error saving profile. Check console.";
+                msg.className = "text-red-400 text-sm mt-3 text-center";
+                msg.classList.remove('hidden');
+                btn.textContent = originalText;
             }
         });
 
         // ==========================================
-        // 5. PLAN SETUP FORM LOGIC
+        // 4. PLAN SETUP & SPLIT GENERATION
         // ==========================================
         document.getElementById('primary-activity').addEventListener('change', (e) => {
             const otherBox = document.getElementById('other-activity-container');
@@ -613,9 +620,6 @@
         }
         document.getElementById('start-date').addEventListener('change', calculate12Weeks);
 
-        // ==========================================
-        // 6. PLAN GENERATION & PREVIEW
-        // ==========================================
         document.getElementById('generate-plan-btn').addEventListener('click', async () => {
             const statusMsg = document.getElementById('generator-status');
             statusMsg.textContent = "Analyzing profile and building your custom schedule...";
@@ -631,40 +635,14 @@
             const cardioText = document.getElementById('cardio-pref').value;
             const daysPerWeek = document.getElementById('training-days').value;
             
-            const weight = document.getElementById('prof-weight').value || "unknown";
-            const age = document.getElementById('display-age').textContent !== '--' ? document.getElementById('display-age').textContent : "unknown";
-
             try {
-                if (GEMINI_API_KEY) {
-                    const promptText = `
-                        Act as an elite personal trainer. Create a JSON format workout plan for a ${age} yr old weighing ${weight}lbs.
-                        Primary Focus: ${checkedFocus.join(', ')}. Activity: ${activity}.
-                        Training Days per week: ${daysPerWeek}. Goal Type: ${goalType}.
-                        Preferred Training Split: ${selectedSplit}. Cardio: ${cardioText}.
-                        Strictly Avoid: "${avoidText}".
-                        Respond ONLY with valid JSON matching:
-                        { "planName": "Custom Plan", "weeks": [{"weekNumber": 1, "days": [{"dayName": "Day 1", "focus": "Upper", "exercises": ["Exercise 1 3x10"]}]}]}
-                    `;
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-                    });
-                    const data = await response.json();
-                    let rawText = data.candidates[0].content.parts[0].text;
-                    rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-                    stagedPlan = JSON.parse(rawText);
-                } else {
-                    stagedPlan = generateSmartSplitPlan(activity, selectedSplit, checkedFocus, avoidText, daysPerWeek);
-                }
-
+                stagedPlan = generateSmartSplitPlan(activity, selectedSplit, checkedFocus, avoidText, daysPerWeek);
                 statusMsg.textContent = "Plan staged successfully! Review below.";
                 startPreviewMode();
-
             } catch (err) {
                 console.error("Plan Generation Error:", err);
-                stagedPlan = generateSmartSplitPlan(activity, selectedSplit, checkedFocus, avoidText, daysPerWeek);
-                startPreviewMode();
+                statusMsg.textContent = "Error generating plan. Please try again.";
+                statusMsg.className = "text-sm mt-3 text-red-400";
             }
         });
 
@@ -741,9 +719,7 @@
             
             stagedPlan.timestamp = new Date().toISOString();
             try {
-                // Rule 1 path for private plan storage
                 await setDoc(doc(db, "artifacts", appId, "users", userId, "plans", "active"), stagedPlan);
-                // Mirror to public plans collection for admin metrics
                 await setDoc(doc(db, "artifacts", appId, "public", "data", "plans", userId), { planName: stagedPlan.planName, timestamp: stagedPlan.timestamp, userId });
                 
                 renderPlanToUI(stagedPlan, false);
@@ -772,7 +748,7 @@
         }
 
         // ==========================================
-        // 7. RENDER DASHBOARD & ADMIN AREA
+        // 5. DASHBOARD & ADMIN RENDERING
         // ==========================================
         async function loadUserPlan() {
             if(!auth.currentUser) return;
@@ -823,7 +799,6 @@
 
         async function loadAdminData() {
             try {
-                // Rule 1 public data collections
                 const usersSnap = await getDocs(collection(db, "artifacts", appId, "public", "data", "users"));
                 const plansSnap = await getDocs(collection(db, "artifacts", appId, "public", "data", "plans"));
                 
