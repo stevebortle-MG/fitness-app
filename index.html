@@ -138,20 +138,52 @@
                 </div>
                 <form id="profile-form" class="space-y-8">
                     <div>
-                        <h2 class="text-xl font-semibold mb-4 text-sky-400 border-b border-slate-700 pb-2">Your Biometrics</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <h2 class="text-xl font-semibold mb-4 text-sky-400 border-b border-slate-700 pb-2">Personal Info & Biometrics</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Age (Yrs)</label>
-                                <input type="number" id="age" min="16" max="100" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">First Name</label>
+                                <input type="text" id="first-name" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 shadow-inner">
                             </div>
                             <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Last Name</label>
+                                <input type="text" id="last-name" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 shadow-inner">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Date of Birth</label>
+                                <input type="date" id="dob" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 [color-scheme:dark] shadow-inner">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
+                            <div class="col-span-2 md:col-span-1 flex gap-2">
+                                <div class="w-1/2">
+                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Ht (Ft)</label>
+                                    <input type="number" id="height-ft" min="3" max="7" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-2 py-2.5 text-white focus:border-sky-500 shadow-inner text-center">
+                                </div>
+                                <div class="w-1/2">
+                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Ht (In)</label>
+                                    <input type="number" id="height-in" min="0" max="11" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-2 py-2.5 text-white focus:border-sky-500 shadow-inner text-center">
+                                </div>
+                            </div>
+                            <div class="col-span-1">
                                 <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Weight (lbs)</label>
                                 <input type="number" id="weight" min="80" max="400" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
                             </div>
-                            <div>
+                            <div class="col-span-1">
+                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Waist (in)</label>
+                                <input type="number" id="waist" min="20" max="60" placeholder="Optional" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div class="col-span-1">
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase">Est. BMI</label>
+                                <div id="bmi-display" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-400 text-sm shadow-inner font-mono flex items-center h-[42px]">--</div>
+                            </div>
+                            <div class="col-span-2 md:col-span-1">
                                 <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Resting HR</label>
                                 <input type="number" id="rhr" min="30" max="120" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
                             </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Fitness Level</label>
                                 <select id="fitness" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white text-sm focus:border-sky-500 appearance-none shadow-inner">
@@ -161,6 +193,24 @@
                                     <option value="advanced">Advanced</option>
                                 </select>
                             </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Training Days/Wk</label>
+                                <select id="training-days" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white text-sm focus:border-sky-500 appearance-none shadow-inner">
+                                    <option value="" disabled selected>Select...</option>
+                                    <option value="1">1 Day</option>
+                                    <option value="2">2 Days</option>
+                                    <option value="3">3 Days</option>
+                                    <option value="4">4 Days</option>
+                                    <option value="5">5 Days</option>
+                                    <option value="6">6 Days</option>
+                                    <option value="7">7 Days</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-indigo-900/30 border border-indigo-500/30 rounded-lg p-3 text-xs text-indigo-300 flex items-start mt-2">
+                            <svg class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <p>BMI is a basic metric and can be inaccurate for muscular individuals. We recommend tracking <strong>Waist Circumference</strong> as a superior metric for body recomposition and lean mass.</p>
                         </div>
                     </div>
                     <div>
@@ -399,7 +449,7 @@
         };
 
         //  ADMIN CONFIGURATION
-        const ADMIN_UID = 'HCar0CbZtdUxBEagfZXnFlqCKPi1'; // Replace after creating your admin account
+        const ADMIN_UID = 'YOUR_ADMIN_USER_UID_HERE'; // Replace after creating your admin account
         // ==========================================
 
         const appId = 'dynamic-fitness-app';
@@ -600,13 +650,20 @@
                 const pSnap = await getDoc(profileRef);
                 if(pSnap.exists()) {
                     const data = pSnap.data();
-                    document.getElementById('age').value = data.age || '';
+                    document.getElementById('first-name').value = data.firstName || '';
+                    document.getElementById('last-name').value = data.lastName || '';
+                    document.getElementById('dob').value = data.dob || '';
+                    document.getElementById('height-ft').value = data.heightFt || '';
+                    document.getElementById('height-in').value = data.heightIn || '';
+                    document.getElementById('waist').value = data.waist || '';
                     document.getElementById('weight').value = data.weight || '';
                     document.getElementById('rhr').value = data.rhr || '';
                     document.getElementById('fitness').value = data.fitness || '';
+                    document.getElementById('training-days').value = data.trainingDays || '';
                     selectedActivities = data.activities || [];
                     buildActivityCheckboxes();
                     updateGoalDropdowns();
+                    calculateBMI(); // Update BMI display based on loaded data
                     document.getElementById('profile-status-text').innerHTML = `<span class="text-emerald-400">Profile synced from cloud.</span>`;
                     document.getElementById('generate-btn').disabled = false;
                 }
@@ -722,21 +779,56 @@
             }
         }
 
+        // Live BMI Calculator
+        function calculateBMI() {
+            const w = parseFloat(document.getElementById('weight').value);
+            const ft = parseFloat(document.getElementById('height-ft').value);
+            const inc = parseFloat(document.getElementById('height-in').value) || 0;
+            
+            if (w && ft) {
+                const totalInches = (ft * 12) + inc;
+                if (totalInches > 0) {
+                    const bmi = (w / (totalInches * totalInches)) * 703;
+                    const display = document.getElementById('bmi-display');
+                    display.textContent = bmi.toFixed(1);
+                    display.classList.add('text-sky-300');
+                    display.classList.remove('text-slate-400');
+                    return;
+                }
+            }
+            document.getElementById('bmi-display').textContent = '--';
+            document.getElementById('bmi-display').classList.remove('text-sky-300');
+            document.getElementById('bmi-display').classList.add('text-slate-400');
+        }
+
+        ['weight', 'height-ft', 'height-in'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calculateBMI);
+        });
+
         document.getElementById('save-profile-btn').addEventListener('click', async () => {
-            const age = document.getElementById('age').value;
+            const firstName = document.getElementById('first-name').value;
+            const lastName = document.getElementById('last-name').value;
+            const dob = document.getElementById('dob').value;
+            const heightFt = document.getElementById('height-ft').value;
+            const heightIn = document.getElementById('height-in').value;
+            const waist = document.getElementById('waist').value;
             const weight = document.getElementById('weight').value;
             const rhr = document.getElementById('rhr').value;
             const fitness = document.getElementById('fitness').value;
+            const trainingDays = document.getElementById('training-days').value;
+            const bmi = document.getElementById('bmi-display').textContent !== '--' ? document.getElementById('bmi-display').textContent : null;
             
-            if(!age || !weight || selectedActivities.length === 0) {
-                alert("Please fill out Age, Weight, and select at least one Current Activity.");
+            if(!firstName || !lastName || !dob || !weight || !heightFt || selectedActivities.length === 0) {
+                alert("Please fill out your Name, DOB, Height, Weight, and select at least one Current Activity.");
                 return;
             }
 
             if(currentUserId && !isLocalMode && typeof db !== 'undefined' && db) {
                 try {
                     const profileRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'config', 'profile');
-                    await setDoc(profileRef, { age, weight, rhr, fitness, activities: selectedActivities }, {merge: true});
+                    await setDoc(profileRef, { 
+                        firstName, lastName, dob, heightFt, heightIn, waist, weight, bmi, rhr, fitness, trainingDays, activities: selectedActivities 
+                    }, {merge: true});
                 } catch(e) { console.error("Could not save profile to cloud", e); }
             }
 
@@ -1180,16 +1272,23 @@
                 for (const userDoc of directorySnap.docs) {
                     const userData = userDoc.data();
                     let profileHtml = '<span class="text-slate-500 text-xs italic">No profile data saved yet.</span>';
+                    let displayName = userData.email;
                     
                     try {
                         const profSnap = await getDoc(doc(db, 'artifacts', appId, 'users', userData.uid, 'config', 'profile'));
                         if (profSnap.exists()) {
                             const p = profSnap.data();
+                            if (p.firstName || p.lastName) {
+                                displayName = `${p.firstName || ''} ${p.lastName || ''}`.trim() + ` (${userData.email})`;
+                            }
+                            let bmiText = p.bmi ? `<span class="text-[10px] text-slate-500 ml-1">(BMI: ${p.bmi})</span>` : '';
                             profileHtml = `
-                                <div class="grid grid-cols-2 gap-2 text-xs mt-2 bg-slate-900/50 p-2 rounded">
-                                    <div><span class="text-slate-400">Age:</span> ${p.age || '-'}</div>
-                                    <div><span class="text-slate-400">Weight:</span> ${p.weight || '-'}</div>
-                                    <div><span class="text-slate-400">Fitness:</span> ${p.fitness || '-'}</div>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs mt-2 bg-slate-900/50 p-2 rounded">
+                                    <div><span class="text-slate-400">DOB:</span> ${p.dob || '-'}</div>
+                                    <div><span class="text-slate-400">Height:</span> ${p.heightFt ? p.heightFt + "'" + (p.heightIn||0) + '"' : '-'}</div>
+                                    <div><span class="text-slate-400">Weight:</span> ${p.weight || '-'} lbs ${bmiText}</div>
+                                    <div><span class="text-slate-400">Waist:</span> ${p.waist ? p.waist + ' in' : '-'}</div>
+                                    <div><span class="text-slate-400">Days/Wk:</span> ${p.trainingDays || '-'}</div>
                                     <div><span class="text-slate-400">Activities:</span> ${p.activities ? p.activities.length : 0}</div>
                                 </div>
                             `;
@@ -1200,7 +1299,7 @@
                         <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h4 class="font-bold text-white">${userData.email}</h4>
+                                    <h4 class="font-bold text-white">${displayName}</h4>
                                     <p class="text-[10px] text-slate-500 font-mono mt-1">${userData.uid}</p>
                                 </div>
                                 <span class="text-[10px] bg-slate-900 px-2 py-1 rounded text-slate-400">Last Login: ${new Date(userData.lastLogin).toLocaleDateString()}</span>
